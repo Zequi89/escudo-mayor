@@ -1,0 +1,6 @@
+Ini, TOML
+[theme]
+primaryColor = "#008a45"
+backgroundColor = "#f4f4f4"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#333333"
