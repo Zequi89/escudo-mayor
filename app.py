@@ -285,8 +285,7 @@ with tab2:
 st.write("---")
 st.markdown("""
 <div style="background-color: #f4f4f4; padding: 15px; border-radius: 8px; border-left: 5px solid #008a45;">
-    <b>💡 RECORDÁ:</b><br>
-    Ningún organismo, banco, empresa de servicios, obra social o prepaga te pedirá claves o tokens por mensaje. 
-    Ante cualquier duda, cortá la comunicación y contactate siempre a través de los canales oficiales.
+    <b>💡 RECORDÁ: Ningún organismo, banco, empresa de servicios, obra social o prepaga te pedirá claves o tokens por mensaje. 
+    Ante cualquier duda contactate a través de los canales oficiales.
 </div>
 """, unsafe_allow_html=True)
