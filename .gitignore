@@ -1,3 +1,4 @@
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -215,4 +216,6 @@ marimo/_lsp/
 __marimo__/
 
 # Streamlit
+.streamlit/
 .streamlit/secrets.toml
+
