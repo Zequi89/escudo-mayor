@@ -168,6 +168,15 @@ def ejecutar_analisis(texto):
             riesgo_critico = True
     
     # 5B. Análisis de Infraestructura (Forzamos ejecución siempre)
+    dominios_a_analizar = set()
+    if urls:
+        for u in urls:
+            url_f = expandir_url(u.strip(".,!?\"'"))
+            dominios_a_analizar.add(urlparse(url_f).netloc)
+    
+    for email in emails:
+        dominios_a_analizar.add(email.split('@')[-1])
+
     if dominios_a_analizar:
         log_forense += f"\n<b>[+] AUDITORÍA DE INFRAESTRUCTURA:</b>\n"
         for dom in dominios_a_analizar:
