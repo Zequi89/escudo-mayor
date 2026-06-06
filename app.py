@@ -263,12 +263,14 @@ with tab1:
     st.markdown("**Suba la captura de pantalla de su celular aquí:**")
     archivo = st.file_uploader("", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
     
-    if archivo is not None and st.button("👁️ Analizar Imagen"):
+    # MODIFICADO: Eliminamos el botón para que el análisis sea automático
+    if archivo is not None:
         with st.spinner("Nuestra IA está extrayendo los datos..."):
             texto_ext = procesar_imagen_ocr(archivo)
             
             if texto_ext and texto_ext.strip():
                 st.success("Lectura exitosa. Analizando el contenido...")
+                # Opcional: puedes comentar la línea de abajo si no quieres mostrar el texto crudo
                 st.text_area("Contenido extraído:", value=texto_ext, height=120, disabled=True)
                 ejecutar_analisis(texto_ext)
             else:
