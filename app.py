@@ -35,32 +35,23 @@ MARCAS_OFICIALES = [
 # ==============================================================================
 st.markdown("""
     <style>
-    h1, h2, h3, .titulo-siglo21 { color: #008a45 !important; font-weight: 800; text-align: center; }
-    p, li { font-size: 1.1rem; line-height: 1.6; }
-    .stTextArea textarea, .stFileUploader { border: 2px solid #008a45 !important; border-radius: 8px; font-size: 1.1rem; }
-    div.stButton > button { background-color: #008a45 !important; color: #ffffff !important; font-weight: bold; border-radius: 8px !important; width: 100%; padding: 12px; font-size: 1.2rem; }
+    /* Tipografía universal */
+    html, body, [class*="st-"] { font-family: sans-serif !important; }
     
-    /* Cajas de Resultado */
-    .caja-resultado { padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 20px; }
-    .resultado-rojo { background-color: #ffcccc; border-left: 12px solid #cc0000; color: #111;}
-    .resultado-amarillo { background-color: #fff2cc; border-left: 12px solid #d4aa00; color: #111;}
-    .resultado-verde { background-color: #d5f5e3; border-left: 12px solid #008a45; color: #111;}
+    /* Título más arriba (ajuste de margen negativo) */
+    .block-container { padding-top: 1rem !important; }
+    h1, h2, h3 { color: #008a45 !important; font-weight: 800; text-align: center; margin-bottom: 0.5rem !important; }
     
-    /* Panel Forense Integrado (Claro y limpio) */
-    .metrica-forense { 
-        font-family: monospace; 
-        font-size: 0.95rem; 
-        background-color: #f4f6f5; 
-        color: #2b2b2b; 
-        padding: 20px; 
-        border-radius: 8px; 
-        margin-top: 10px; 
-        border: 1px solid #dcdcdc;
-        line-height: 1.5;
-        white-space: pre-wrap;
-    }
-    .metrica-forense b { color: #008a45; }
-    </style>
+    /* Semáforos más compactos */
+    .caja-resultado { padding: 15px !important; border-radius: 8px; margin-top: 10px !important; }
+    
+    /* Alerta visual mejorada */
+    .resultado-rojo { background-color: #fee2e2 !important; border-left: 10px solid #dc2626 !important; color: #991b1b !important; }
+    .resultado-amarillo { background-color: #fef3c7 !important; border-left: 10px solid #d97706 !important; color: #92400e !important; }
+    .resultado-verde { background-color: #dcfce7 !important; border-left: 10px solid #16a34a !important; color: #166534 !important; }
+    
+    .metrica-forense { font-family: sans-serif !important; font-size: 0.9rem; background-color: #f8fafc; padding: 10px; border-radius: 5px; }
+</style>
     """, unsafe_allow_html=True)
 
 st.markdown("<h1 class='titulo-siglo21'>🛡️ Escudo Mayor</h1>", unsafe_allow_html=True)
@@ -135,7 +126,6 @@ def buscar_osint_fraude(dominio):
 # 5. MOTOR DE CORRELACIÓN HEURÍSTICA (NÚCLEO)
 # ==============================================================================
 def ejecutar_analisis(texto):
-    st.info("⏳ Analizando los datos. Un momento por favor...")
     
     urls = re.findall(r'(https?://[^\s]+)', texto)
     emails = re.findall(r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+', texto)
@@ -235,24 +225,17 @@ def ejecutar_analisis(texto):
     # 6. RENDERIZADO VISUAL DEL SEMÁFORO
     # ==============================================================================
     if riesgo_critico or (urls and palabras_encontradas):
-        razones_html = "".join([f"<li>{motivo}</li>" for motivo in set(motivo_riesgo)]) if motivo_riesgo else "<li>El enlace ha sido reportado como peligroso.</li>"
         st.markdown(f"""
         <div class="caja-resultado resultado-rojo">
-            <h2 style="color: #cc0000; margin-top: 0;">🔴 ¡ALERTA DE PELIGRO!</h2>
-            <p><b>No haga clic en ningún enlace ni responda este mensaje.</b></p>
-            <p>Hemos encontrado problemas graves en su mensaje:</p>
-            <ul>{razones_html}</ul>
-            <p><i>Corte la comunicación y contacte a su entidad por canales oficiales.</i></p>
+            <h2 style="font-size: 1.2rem;">🔴 ALERTA DE PELIGRO</h2>
+            <ul style="font-size: 0.9rem;">{razones_html}</ul>
         </div>
         """, unsafe_allow_html=True)
     elif palabras_encontradas or telefonos or emails:
-        razones_html = "".join([f"<li>{motivo}</li>" for motivo in set(motivo_riesgo)])
         st.markdown(f"""
         <div class="caja-resultado resultado-amarillo">
-            <h2 style="color: #b38600; margin-top: 0;">🟡 PRECAUCIÓN</h2>
-            <p>Este mensaje tiene elementos sospechosos:</p>
-            <ul>{razones_html}</ul>
-            <p>Recuerde: <b>Las entidades oficiales no piden transferencias ni tokens por WhatsApp.</b></p>
+            <h2 style="font-size: 1.2rem;">🟡 PRECAUCIÓN</h2>
+            <ul style="font-size: 0.9rem;">{razones_html}</ul>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -285,16 +268,11 @@ with tab1:
     
     # MODIFICADO: Eliminamos el botón para que el análisis sea automático
     if archivo is not None:
-        with st.spinner("Nuestra IA está extrayendo los datos..."):
-            texto_ext = procesar_imagen_ocr(archivo)
-            
-            if texto_ext and texto_ext.strip():
-                st.success("Lectura exitosa. Analizando el contenido...")
-                # Opcional: puedes comentar la línea de abajo si no quieres mostrar el texto crudo
-                st.text_area("Contenido extraído:", value=texto_ext, height=120, disabled=True)
-                ejecutar_analisis(texto_ext)
-            else:
-                st.error("Hubo un error leyendo la imagen. Intente pegar el texto manualmente.")
+        texto_ext = procesar_imagen_ocr(archivo)
+        if texto_ext and texto_ext.strip():
+            ejecutar_analisis(texto_ext)
+        else:
+            st.error("Error al leer la imagen.")
 
 with tab2:
     st.markdown("**Mantenga apretado y pegue el mensaje sospechoso:**")
