@@ -1,7 +1,7 @@
-Ini, TOML
 [theme]
-base="light"
+base = "light"
 primaryColor = "#008a45"
-backgroundColor = "#f4f4f4"
-secondaryBackgroundColor = "#ffffff"
-textColor = "#333333"
+backgroundColor = "#fcfcfc"
+secondaryBackgroundColor = "#fcfcfc"
+textColor = "#111111"
+font = "sans serif"
