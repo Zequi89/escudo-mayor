@@ -224,25 +224,31 @@ def ejecutar_analisis(texto):
     # ==============================================================================
     # 6. RENDERIZADO VISUAL DEL SEMÁFORO
     # ==============================================================================
+    # Construcción de razones primero para evitar el NameError
+    if motivo_riesgo:
+        razones_html = "".join([f"<li>{motivo}</li>" for motivo in set(motivo_riesgo)])
+    else:
+        razones_html = "<li>El mensaje contiene elementos inusuales.</li>"
+
     if riesgo_critico or (urls and palabras_encontradas):
         st.markdown(f"""
         <div class="caja-resultado resultado-rojo">
-            <h2 style="font-size: 1.2rem;">🔴 ALERTA DE PELIGRO</h2>
+            <h2 style="font-size: 1.2rem; color: #991b1b !important;">🔴 ALERTA DE PELIGRO</h2>
             <ul style="font-size: 0.9rem;">{razones_html}</ul>
         </div>
         """, unsafe_allow_html=True)
     elif palabras_encontradas or telefonos or emails:
         st.markdown(f"""
         <div class="caja-resultado resultado-amarillo">
-            <h2 style="font-size: 1.2rem;">🟡 PRECAUCIÓN</h2>
+            <h2 style="font-size: 1.2rem; color: #92400e !important;">🟡 PRECAUCIÓN</h2>
             <ul style="font-size: 0.9rem;">{razones_html}</ul>
         </div>
         """, unsafe_allow_html=True)
     else:
         st.markdown("""
         <div class="caja-resultado resultado-verde">
-            <h2 style="color: #008a45; margin-top: 0;">🟢 MENSAJE SIN ALERTAS</h2>
-            <p>No hemos detectado infraestructura maliciosa, pero <b>mantenga siempre la precaución</b>.</p>
+            <h2 style="font-size: 1.2rem; color: #166534 !important;">🟢 MENSAJE SIN ALERTAS</h2>
+            <p style="font-size: 0.9rem;">No se detectaron amenazas inmediatas.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -263,17 +269,23 @@ def ejecutar_analisis(texto):
 tab1, tab2 = st.tabs(["📸 Revisar Imagen", "✍️ Escribir Mensaje"])
 
 with tab1:
-    st.markdown("**Suba la captura de pantalla de su celular aquí:**")
-    archivo = st.file_uploader("", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
+    # Contenedor para que el contenido sea dinámico
+    placeholder = st.empty()
     
-    # MODIFICADO: Eliminamos el botón para que el análisis sea automático
+    with placeholder.container():
+        st.markdown("**Suba la captura de pantalla de su celular aquí:**")
+        archivo = st.file_uploader("", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
+    
     if archivo is not None:
+        # Limpiamos el uploader para que no se duplique visualmente
+        placeholder.empty() 
         texto_ext = procesar_imagen_ocr(archivo)
         if texto_ext and texto_ext.strip():
             ejecutar_analisis(texto_ext)
+            if st.button("🔄 Analizar otra imagen"):
+                st.rerun()
         else:
             st.error("Error al leer la imagen.")
-
 with tab2:
     st.markdown("**Mantenga apretado y pegue el mensaje sospechoso:**")
     texto_ingresado = st.text_area("", height=150, label_visibility="collapsed")
