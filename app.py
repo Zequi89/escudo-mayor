@@ -168,56 +168,59 @@ def ejecutar_analisis(texto):
             riesgo_critico = True
     
     # 5B. Análisis de Infraestructura (Forzamos ejecución siempre)
-    dominios_a_analizar = set()
-    if urls:
-        for u in urls:
-            url_f = expandir_url(u.strip(".,!?\"'"))
-            dominios_a_analizar.add(urlparse(url_f).netloc)
-    
-    # Extraer dominios también de correos
-    for email in emails:
-        dominios_a_analizar.add(email.split('@')[-1])
-
     if dominios_a_analizar:
         log_forense += f"\n<b>[+] AUDITORÍA DE INFRAESTRUCTURA:</b>\n"
         for dom in dominios_a_analizar:
             log_forense += f"\n--- Analizando: {dom} ---\n"
             
             # 1. Typosquatting
-            for marca in MARCAS_OFICIALES:
-                if 0.75 < SequenceMatcher(None, dom, marca).ratio() < 1.0:
-                    riesgo_critico = True
-                    log_forense += f"[!] TYPOSQUATTING: Suplantación de {marca}\n"
-                    motivo_riesgo.append(f"El dominio <b>{dom}</b> intenta suplantar a <b>{marca}</b>.")
-                    break
+            try:
+                for marca in MARCAS_OFICIALES:
+                    if 0.75 < SequenceMatcher(None, dom, marca).ratio() < 1.0:
+                        riesgo_critico = True
+                        log_forense += f"[!] TYPOSQUATTING: Suplantación de {marca}\n"
+                        motivo_riesgo.append(f"El dominio <b>{dom}</b> intenta suplantar a <b>{marca}</b>.")
+                        break
+            except Exception as e: log_forense += f"[!] Error Typosquatting: {e}\n"
 
-            # 2. Reputación (Safe Browsing / VirusTotal)
-            if consultar_apis_reputacion(dom):
-                riesgo_critico = True
-                log_forense += "[!] REPUTACIÓN: Dominio reportado como malicioso.\n"
-                motivo_riesgo.append(f"El dominio {dom} tiene reportes de actividad maliciosa.")
+            # 2. Reputación
+            try:
+                if consultar_apis_reputacion(dom):
+                    riesgo_critico = True
+                    log_forense += "[!] REPUTACIÓN: Dominio reportado como malicioso.\n"
+                    motivo_riesgo.append(f"El dominio {dom} tiene reportes de actividad maliciosa.")
+            except Exception as e: log_forense += f"[!] Error Reputación: {e}\n"
             
             # 3. WHOIS
-            dias = auditar_whois(dom)
-            if dias is not None:
-                log_forense += f"[+] WHOIS: Dominio creado hace {dias} días.\n"
-                if dias < 30:
-                    riesgo_critico = True
-                    log_forense += f"[!] ALERTA WHOIS: Infraestructura temporal ({dias} días).\n"
-                    motivo_riesgo.append(f"El dominio {dom} es muy reciente.")
+            try:
+                dias = auditar_whois(dom)
+                if dias is not None:
+                    log_forense += f"[+] WHOIS: Dominio creado hace {dias} días.\n"
+                    if dias < 30:
+                        riesgo_critico = True
+                        log_forense += f"[!] ALERTA WHOIS: Infraestructura temporal ({dias} días).\n"
+                        motivo_riesgo.append(f"El dominio {dom} es muy reciente.")
+                else: log_forense += "[+] WHOIS: No se pudo obtener antigüedad.\n"
+            except Exception as e: log_forense += f"[!] Error WHOIS: {e}\n"
 
             # 4. DNS & Geolocalización
-            ip, geo = analizar_infraestructura(dom)
-            if ip:
-                log_forense += f"[+] DNS: {dom} -> {ip}\n"
-                if geo and not geo.get("error"):
-                    log_forense += f"[+] GEO: {geo.get('city')}, {geo.get('country_name')} (ISP: {geo.get('org')})\n"
-                    map_data = pd.DataFrame({'lat': [geo.get('latitude')], 'lon': [geo.get('longitude')]})
+            try:
+                ip, geo = analizar_infraestructura(dom)
+                if ip:
+                    log_forense += f"[+] DNS: {dom} -> {ip}\n"
+                    if geo and not geo.get("error"):
+                        log_forense += f"[+] GEO: {geo.get('city')}, {geo.get('country_name')}\n"
+                        map_data = pd.DataFrame({'lat': [geo.get('latitude')], 'lon': [geo.get('longitude')]})
+                else: log_forense += "[+] DNS: No se pudo resolver.\n"
+            except Exception as e: log_forense += f"[!] Error DNS/GEO: {e}\n"
 
-            # 5. OSINT Google Search (Búsqueda profunda)
-            if buscar_osint_fraude(dom):
-                log_forense += f"[!] OSINT: Reportes de fraude encontrados para {dom}.\n"
-                motivo_riesgo.append(f"Existen reportes públicos de fraude asociados a <b>{dom}</b>.")
+            # 5. OSINT Google Search
+            try:
+                if buscar_osint_fraude(dom):
+                    log_forense += f"[!] OSINT: Reportes de fraude encontrados para {dom}.\n"
+                    motivo_riesgo.append(f"Existen reportes públicos de fraude asociados a <b>{dom}</b>.")
+                else: log_forense += "[+] OSINT: Sin resultados públicos negativos.\n"
+            except Exception as e: log_forense += f"[!] Error OSINT: {e}\n"
                 
     # ==============================================================================
     # 6. RENDERIZADO VISUAL DEL SEMÁFORO
