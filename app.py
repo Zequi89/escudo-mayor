@@ -8,27 +8,12 @@ from blacklist import PALABRAS_PELIGRO, PALABRAS_ALERTA
 # --- CONFIGURACIÓN ---
 st.set_page_config(page_title="Escudo Mayor", page_icon="🛡️", layout="centered")
 
-# --- CSS ESTRICTO ---
+# --- CSS SIMPLIFICADO ---
 st.markdown("""
     <style>
-    .stApp { background-color: #fcfcfc !important; }
+    /* Los colores generales ahora los maneja el config.toml */
     
-    /* --- TÍTULOS (Mantienen su color original) --- */
     h1, h2, h3, .titulo-siglo21 { color: #008a45 !important; font-weight: bold; }
-    
-    /* --- FIX MODO OSCURO (Sin afectar a los títulos) --- */
-    /* Solo afectamos párrafos, etiquetas y textos generales */
-    div:not(h1):not(h2):not(h3) p, label, span, .stMarkdown { color: #111111 !important; }
-    
-    /* Fuerza el color de las solapas (tabs) */
-    button[data-baseweb="tab"] { 
-        color: #555555 !important; 
-    }
-    button[data-baseweb="tab"][aria-selected="true"] { 
-        color: #008a45 !important; 
-        font-weight: bold !important; 
-    }
-    /* -------------------------------------------------- */
     
     .stTextArea textarea, .stFileUploader { 
         background-color: #eafaf1 !important; color: #111111 !important; 
