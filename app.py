@@ -13,6 +13,22 @@ st.markdown("""
     <style>
     .stApp { background-color: #fcfcfc !important; }
     h1, h2, h3, .titulo-siglo21 { color: #008a45 !important; font-weight: bold; }
+    
+    /* --- FIX PARA MODO OSCURO --- */
+    /* Fuerza el color del texto general y las etiquetas a oscuro */
+    p, label, span, .stMarkdown { color: #111111 !important; }
+    
+    /* Fuerza el color de las solapas (tabs) */
+    button[data-baseweb="tab"] { 
+        color: #555555 !important; 
+    }
+    /* Estilo de la solapa seleccionada */
+    button[data-baseweb="tab"][aria-selected="true"] { 
+        color: #008a45 !important; 
+        font-weight: bold !important; 
+    }
+    /* ----------------------------- */
+    
     .stTextArea textarea, .stFileUploader { 
         background-color: #eafaf1 !important; color: #111111 !important; 
         border: 2px solid #008a45 !important; border-radius: 8px;
