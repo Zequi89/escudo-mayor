@@ -167,46 +167,46 @@ def ejecutar_analisis(texto):
         if any(p in texto.lower() for p in PALABRAS_PELIGRO):
             riesgo_critico = True
     
-    # 5B. Análisis de Infraestructura (Extraer dominio de enlaces O correos)
+    # 5B. Análisis de Infraestructura (Forzamos ejecución siempre)
     dominios_a_analizar = set()
     if urls:
         for u in urls:
             url_f = expandir_url(u.strip(".,!?\"'"))
             dominios_a_analizar.add(urlparse(url_f).netloc)
     
-    # Extraer dominio de correos también
+    # Extraer dominios también de correos
     for email in emails:
         dominios_a_analizar.add(email.split('@')[-1])
 
     if dominios_a_analizar:
         log_forense += f"\n<b>[+] AUDITORÍA DE INFRAESTRUCTURA:</b>\n"
         for dom in dominios_a_analizar:
-            log_forense += f"\n- Dominio: {dom}\n"
+            log_forense += f"\n--- Analizando: {dom} ---\n"
             
-            # Typosquatting
+            # 1. Typosquatting
             for marca in MARCAS_OFICIALES:
                 if 0.75 < SequenceMatcher(None, dom, marca).ratio() < 1.0:
                     riesgo_critico = True
-                    log_forense += f"[!] TYPOSQUATTING: Simula ser {marca}\n"
+                    log_forense += f"[!] TYPOSQUATTING: Suplantación de {marca}\n"
                     motivo_riesgo.append(f"El dominio <b>{dom}</b> intenta suplantar a <b>{marca}</b>.")
                     break
 
-            # Reputación
+            # 2. Reputación (Safe Browsing / VirusTotal)
             if consultar_apis_reputacion(dom):
                 riesgo_critico = True
-                log_forense += "[!] REPUTACIÓN: Dominio reportado en Safe Browsing / VirusTotal.\n"
+                log_forense += "[!] REPUTACIÓN: Dominio reportado como malicioso.\n"
                 motivo_riesgo.append(f"El dominio {dom} tiene reportes de actividad maliciosa.")
             
-            # WHOIS
+            # 3. WHOIS
             dias = auditar_whois(dom)
             if dias is not None:
-                log_forense += f"[+] WHOIS: {dom} creado hace {dias} días.\n"
+                log_forense += f"[+] WHOIS: Dominio creado hace {dias} días.\n"
                 if dias < 30:
                     riesgo_critico = True
-                    log_forense += f"[!] ALERTA WHOIS: Infraestructura muy joven ({dias} días).\n"
-                    motivo_riesgo.append(f"El dominio {dom} es muy reciente, común en fraudes.")
+                    log_forense += f"[!] ALERTA WHOIS: Infraestructura temporal ({dias} días).\n"
+                    motivo_riesgo.append(f"El dominio {dom} es muy reciente.")
 
-            # DNS & GEO
+            # 4. DNS & Geolocalización
             ip, geo = analizar_infraestructura(dom)
             if ip:
                 log_forense += f"[+] DNS: {dom} -> {ip}\n"
@@ -214,10 +214,11 @@ def ejecutar_analisis(texto):
                     log_forense += f"[+] GEO: {geo.get('city')}, {geo.get('country_name')} (ISP: {geo.get('org')})\n"
                     map_data = pd.DataFrame({'lat': [geo.get('latitude')], 'lon': [geo.get('longitude')]})
 
-            # OSINT
+            # 5. OSINT Google Search (Búsqueda profunda)
             if buscar_osint_fraude(dom):
-                log_forense += f"[!] OSINT: Existen reportes públicos de fraude sobre {dom}.\n"
-
+                log_forense += f"[!] OSINT: Reportes de fraude encontrados para {dom}.\n"
+                motivo_riesgo.append(f"Existen reportes públicos de fraude asociados a <b>{dom}</b>.")
+                
     # ==============================================================================
     # 6. RENDERIZADO VISUAL DEL SEMÁFORO
     # ==============================================================================
