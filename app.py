@@ -114,7 +114,7 @@ def ejecutar_analisis(texto):
         st.markdown(f"""
         <div class="caja-resultado resultado-rojo">
             <h2 style="color: #cc0000; margin-top: 0;">🔴 ¡ALERTA!</h2>
-            <p>Este mensaje presenta indicios maliciosos. <b>No acceda a enlaces ni brinde información personal.</b></p>
+            <p>El texto contiene palabras sospechosas. <b>No acceda a enlaces ni brinde información personal.</b></p>
             <p>{url_info}</p>
             <p>🚩 <b>Palabras sospechosas:</b> {', '.join(set(encontradas)) if encontradas else 'Ninguna'}</p>
         </div>
