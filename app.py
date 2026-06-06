@@ -12,22 +12,23 @@ st.set_page_config(page_title="Escudo Mayor", page_icon="🛡️", layout="cente
 st.markdown("""
     <style>
     .stApp { background-color: #fcfcfc !important; }
+    
+    /* --- TÍTULOS (Mantienen su color original) --- */
     h1, h2, h3, .titulo-siglo21 { color: #008a45 !important; font-weight: bold; }
     
-    /* --- FIX PARA MODO OSCURO --- */
-    /* Fuerza el color del texto general y las etiquetas a oscuro */
-    p, label, span, .stMarkdown { color: #111111 !important; }
+    /* --- FIX MODO OSCURO (Sin afectar a los títulos) --- */
+    /* Solo afectamos párrafos, etiquetas y textos generales */
+    div:not(h1):not(h2):not(h3) p, label, span, .stMarkdown { color: #111111 !important; }
     
     /* Fuerza el color de las solapas (tabs) */
     button[data-baseweb="tab"] { 
         color: #555555 !important; 
     }
-    /* Estilo de la solapa seleccionada */
     button[data-baseweb="tab"][aria-selected="true"] { 
         color: #008a45 !important; 
         font-weight: bold !important; 
     }
-    /* ----------------------------- */
+    /* -------------------------------------------------- */
     
     .stTextArea textarea, .stFileUploader { 
         background-color: #eafaf1 !important; color: #111111 !important; 
