@@ -347,7 +347,7 @@ def ejecutar_analisis(texto_crudo):
     if cuenta_palabras > 0:
         palabras_str = ", ".join(set(palabras_encontradas))
         log_forense.append(f"Coincidencia de Palabras Clave ({cuenta_palabras}): {palabras_str}")
-        motivo_riesgo.append(f"🛑 **Indicadores de Manipulación:** Uso de términos de presión o alerta (*{palabras_str}*).")
+        motivo_riesgo.append(f"🛑 Incluye términos de alerta: (*{palabras_str}*).")
 
     # Consolidación de entidades de red
     dominios_a_analizar = set()
@@ -438,7 +438,7 @@ def ejecutar_analisis(texto_crudo):
     if color_veredicto == "rojo":
         st.markdown(f"""
         <div class="caja-resultado resultado-rojo">
-            <h2 style="color: #d32f2f; margin-top:0; font-size:1.5rem; font-weight:800;">🔴 PELIGRO CRÍTICO DETECTADO</h2>
+            <h2 style="color: #d32f2f; margin-top:0; font-size:1.5rem; font-weight:800;">🔴 PELIGRO</h2>
             <p style="font-size: 1.05rem;"><b>Se recomienda interrumpir de inmediato cualquier tipo de comunicación o ingreso de contraseñas. Los sistemas de ciberdefensa confirman un vector de ataque activo o altamente peligroso.</b></p>
             <ul style="margin-top: 10px; line-height: 1.5;">{razones_html}</ul>
         </div>
@@ -446,16 +446,16 @@ def ejecutar_analisis(texto_crudo):
     elif color_veredicto == "amarillo":
         st.markdown(f"""
         <div class="caja-resultado resultado-amarillo">
-            <h2 style="color: #d46b08; margin-top:0; font-size:1.4rem; font-weight:700;">🟡 PRECAUCIÓN RECOMENDADA</h2>
-            <p><b>Mensaje o plataforma bajo análisis con intenciones dudosas basadas en patrones aislados. Valide siempre la veracidad del perfil antes de responder.</b></p>
+            <h2 style="color: #d46b08; margin-top:0; font-size:1.4rem; font-weight:700;">🟡 PRECAUCIÓN</h2>
+            <p><b>Mensaje o plataforma bajo análisis con intenciones dudosas. Valide siempre la veracidad del perfil antes de responder.</b></p>
             <ul style="margin-top: 10px;">{razones_html}</ul>
         </div>
         """, unsafe_allow_html=True)
     else:
         st.markdown("""
         <div class="caja-resultado resultado-verde">
-            <h2 style="color: #389e0d; margin-top:0; font-size:1.25rem; font-weight:700;">🟢 SEGURO / SIN ANOMALÍAS AUTOMÁTICAS</h2>
-            <p style="font-size: 0.95rem; margin-bottom: 0;">El análisis automatizado no encontró registros maliciosos o de riesgo evidente. Recuerde que las instituciones oficiales jamás le exigirán contraseñas ni códigos de seguridad.</p>
+            <h2 style="color: #389e0d; margin-top:0; font-size:1.25rem; font-weight:700;">🟢 SEGURO</h2>
+            <p style="font-size: 0.95rem; margin-bottom: 0;">No se encontraron registros maliciosos o de riesgo evidente. Recuerde que las instituciones oficiales jamás le exigirán contraseñas ni códigos de seguridad.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -468,7 +468,7 @@ def ejecutar_analisis(texto_crudo):
         with st.expander("Ver Texto en Idioma Original Recibido", expanded=False):
             st.text(texto_original)
     else:
-        st.text_area("📝 Mensaje Bajo Análisis Técnico:", value=texto_original, height=120, key=f"disp_orig_{random.randint(1,9999)}")
+        st.text_area("Mensaje Analizado:", value=texto_original, height=120, key=f"disp_orig_{random.randint(1,9999)}")
 
     # Despliegue de Consola Forense Avanzada (Diseño Ultra-Compacto y Agrupado por Jerarquía)
     with st.expander("🛠️ Ver Reporte Forense Completo de Infraestructura (Consola Técnica)", expanded=False):
