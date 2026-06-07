@@ -14,17 +14,15 @@ from datetime import datetime
 from urllib.parse import urlparse
 from difflib import SequenceMatcher
 
-# Módulo de traducción para campañas internacionales
-try:
-    from deep_translator import GoogleTranslator
-except ImportError:
-    GoogleTranslator = None
-
-# Importar Trivia
+# Importar Trivia con matriz de respaldo funcional (varias opciones)
 try:
     from preguntas import TRIVIA_SEGURIDAD
 except ImportError:
-    TRIVIA_SEGURIDAD = [{"pregunta": "¿El banco te pide claves por WhatsApp?", "opciones": ["Sí", "No"], "respuesta": "No", "explicacion": "Ningún banco pide contraseñas por WhatsApp."}]
+    TRIVIA_SEGURIDAD = [
+        {"pregunta": "¿El banco te pide claves por WhatsApp?", "opciones": ["Sí", "No"], "respuesta": "No", "explicacion": "Ningún banco pide contraseñas por WhatsApp."},
+        {"pregunta": "Si un familiar te pide plata urgente desde un número nuevo, ¿qué hacés?", "opciones": ["Le transfiero", "Lo llamo a su número viejo"], "respuesta": "Lo llamo a su número viejo", "explicacion": "Es la estafa más común de suplantación."},
+        {"pregunta": "¿Debes hacer clic en un link de ANSES que llega por SMS?", "opciones": ["Sí", "No"], "respuesta": "No", "explicacion": "ANSES nunca envía links por SMS para cobrar bonos."}
+    ]
 
 # Configuración de la página
 st.set_page_config(page_title="Escudo Mayor", page_icon="🛡️", layout="centered")
@@ -52,19 +50,15 @@ st.markdown("""
     /* Tipografía universal */
     html, body, [class*="st-"] { font-family: sans-serif !important; }
     
-    /* Título más arriba (ajuste de margen negativo) */
+    /* Título y márgenes */
     .block-container { padding-top: 1.5rem !important; }
     h1, h2, h3 { color: #008a45 !important; font-weight: 800; text-align: center; margin-bottom: 0.5rem !important; }
     
-    /* Reparación del Uploader: Ocultar textos e íconos por defecto que causan solapamiento */
-    [data-testid="stFileUploadDropzone"] div div::before { display: none !important; content: "" !important; }
-    [data-testid="stFileUploadDropzone"] svg { display: none !important; }
-    
-    /* Reparación del Expander (flecha) */
+    /* Reparación del Expander */
     .st-expander summary p { font-weight: bold !important; font-size: 1.1rem !important; }
     
     /* Semáforos más compactos e informativos */
-    .caja-resultado { padding: 15px !important; border-radius: 8px; margin-top: 10px !important; margin-bottom: 20px !important;}
+    .caja-resultado { padding: 15px !important; border-radius: 8px; margin-top: 5px !important; margin-bottom: 15px !important;}
     .resultado-rojo { background-color: #fee2e2 !important; border-left: 10px solid #dc2626 !important; color: #991b1b !important; }
     .resultado-amarillo { background-color: #fef3c7 !important; border-left: 10px solid #d97706 !important; color: #92400e !important; }
     .resultado-verde { background-color: #dcfce7 !important; border-left: 10px solid #16a34a !important; color: #166534 !important; }
@@ -74,7 +68,7 @@ st.markdown("""
     .metrica-forense li { margin-bottom: 8px; }
     
     /* Contenedor de la Trivia */
-    .caja-trivia { border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; background-color: #f1f8f5; margin-top: 30px; margin-bottom: 20px;}
+    .caja-trivia { border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; background-color: #f1f8f5; margin-top: 10px; margin-bottom: 20px;}
     </style>
     """, unsafe_allow_html=True)
 
@@ -164,11 +158,16 @@ def ejecutar_analisis(texto_crudo):
     
     # 5.0 TRADUCCIÓN AUTOMÁTICA
     texto = texto_crudo
-    if GoogleTranslator:
-        try:
-            texto = GoogleTranslator(source='auto', target='es').translate(texto_crudo)
-        except:
-            pass # Si falla el traductor, usamos el original
+    try:
+        from deep_translator import GoogleTranslator
+        # Forzar traducción de cualquier idioma al español
+        texto_traducido = GoogleTranslator(source='auto', target='es').translate(texto_crudo)
+        if texto_traducido:
+            texto = texto_traducido
+    except ImportError:
+        st.warning("⚠️ Módulo de traducción (deep-translator) no detectado. Procesando en idioma original.")
+    except Exception as e:
+        st.warning(f"⚠️ Fallo en el servidor de traducción. Procesando en idioma original.")
 
     urls = re.findall(r'(https?://[^\s]+)', texto)
     emails = re.findall(r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+', texto)
@@ -311,15 +310,16 @@ def ejecutar_analisis(texto_crudo):
         """, unsafe_allow_html=True)
 
     # ==============================================================================
-    # 7. CONSOLA TÉCNICA Y TEXTO EXTRAÍDO
+    # 7. CONSOLA TÉCNICA Y TEXTO EXTRAÍDO (AHORA EDITABLE)
     # ==============================================================================
     st.write("---")
-    st.markdown("### 📝 Texto detectado (Traducido y analizado):")
-    st.info(texto)
+    st.markdown("### 📝 Texto extraído y traducido:")
+    
+    # Cuadro de texto editable
+    st.text_area("Puede copiar o editar este texto si lo necesita:", value=texto, height=150, key=f"texto_traducido_{random.randint(1,1000)}")
 
     log_texto_final = "\n".join(log_forense)
     
-    # Se remueve el ícono de tuerca del título para que no colisione con la flecha de Streamlit
     with st.expander("Reporte Forense Detallado de Infraestructura", expanded=False):
         st.markdown(f"<div class='metrica-forense'>{log_texto_final}</div>", unsafe_allow_html=True)
         if map_data is not None and not map_data.isnull().values.any():
@@ -345,16 +345,18 @@ with tab1:
 
 with tab2:
     st.markdown("**Mantenga apretado y pegue el mensaje sospechoso:**")
-    texto_ingresado = st.text_area("Texto", height=150, label_visibility="collapsed")
+    # Este cuadro recibe input y el botón dispara el motor forense
+    texto_ingresado = st.text_area("Pegue el texto aquí", height=150, label_visibility="collapsed", key="input_tab2")
     
     if st.button("🔍 Revisar Texto", use_container_width=True):
         if texto_ingresado.strip(): 
             ejecutar_analisis(texto_ingresado)
+        else:
+            st.warning("Por favor, ingrese o pegue un texto para analizar.")
 
 # ==============================================================================
 # 9. SISTEMA DE TRIVIA DIARIA (DESAFÍO AL FINAL)
 # ==============================================================================
-st.write("---")
 if "pregunta_actual" not in st.session_state:
     st.session_state.pregunta_actual = random.choice(TRIVIA_SEGURIDAD)
     st.session_state.respondido = False
@@ -391,9 +393,9 @@ st.markdown("</div>", unsafe_allow_html=True)
 # 10. AVISOS LEGALES Y RECORDATORIOS
 # ==============================================================================
 st.markdown("""
-<div style="background-color: #f4f4f4; padding: 15px; border-radius: 8px; border-left: 5px solid #008a45; margin-bottom: 20px;">
+<div style="background-color: #f4f4f4; padding: 15px; border-radius: 8px; border: 2px solid #008a45; margin-bottom: 20px;">
     💡 <b>RECORDATORIO VITAL:</b> Ningún organismo (ANSES, PAMI), banco o empresa le pedirá claves, tokens o CBU por mensaje. Ante la duda, corte y llame a los números oficiales.
 </div>
 """, unsafe_allow_html=True)
 
-st.caption("🛡️ Escudo Mayor es una aplicación con fines educativos e informativos para la protección digital. No está diseñada para uso comercial.")
+st.markdown('<p style="font-size: 0.75rem; color: #666666; text-align: center;">🛡️ Escudo Mayor es una aplicación con fines educativos e informativos para la protección digital. No está diseñada para uso comercial.</p>', unsafe_allow_html=True)
