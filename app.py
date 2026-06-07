@@ -22,12 +22,13 @@ except ImportError:
         {"pregunta": "¿El banco te pide claves por WhatsApp?", "opciones": ["Sí", "No"], "respuesta": "No", "explicacion": "Ningún banco pide contraseñas por WhatsApp."}
     ]
 
-# Configuración de la página basada en el prototipo base
+# Configuración estética superior: Título principal agrandado y resaltado con líneas
 st.markdown("""
-<div style="border-top: 2px solid #008a45; border-bottom: 2px solid #008a45; padding: 12px 0; text-align: center; margin-bottom: 30px;">
+<div style="border-top: 2px solid #008a45; border-bottom: 2px solid #008a45; padding: 16px 0; text-align: center; margin-top: 10px; margin-bottom: 10px;">
     <h1 style="color: #008a45; margin: 0; font-size: 2.7rem; font-weight: 700; letter-spacing: 1px;">🛡️ ESCUDO MAYOR</h1>
 </div>
 """, unsafe_allow_html=True)
+st.markdown("<h3 style='color: #555; font-size: 1.1rem; text-align: center; margin-bottom: 30px;'>Fortalecimiento Digital para el Adulto Mayor</h3>", unsafe_allow_html=True)
 
 # Inicialización de Estados de Navegación Remota
 if "active_tab" not in st.session_state:
@@ -51,7 +52,6 @@ MARCAS_OFICIALES = [
 # ==============================================================================
 # 3. ESTILOS VISUALES DINÁMICOS E INYECCIÓN DE CSS (TABS 50/50)
 # ==============================================================================
-# Definición de colores adaptativos para las solapas según la selección actual
 if st.session_state["active_tab"] == "imagen":
     css_tabs = """
     div[data-testid="stColumn"]:nth-of-type(1) button { background-color: #008a45 !important; color: white !important; font-weight: bold !important; height: 55px !important; font-size: 1.1rem !important; border: none !important; width: 100% !important; border-radius: 8px !important;}
@@ -66,7 +66,6 @@ else:
 st.markdown(f"""
     <style>
     .stApp {{ background-color: #fcfcfc !important; }}
-    h1, h2, h3, .titulo-siglo21 {{ color: #008a45 !important; font-weight: bold; text-align: center; }}
     
     /* Configuración de Inyección de Solapas */
     {css_tabs}
@@ -84,28 +83,26 @@ st.markdown(f"""
         padding: 0.5rem 1rem;
     }}
     
-    /* Contenedores de Semáforos */
-    .caja-resultado {{ padding: 20px; border-radius: 8px; color: #111111 !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 15px; margin-bottom: 15px; }}
-    .resultado-rojo {{ background-color: #ffcccc; border-left: 10px solid #cc0000; }}
-    .resultado-amarillo {{ background-color: #fff2cc; border-left: 10px solid #d4aa00; }}
-    .resultado-verde {{ background-color: #d5f5e3; border-left: 10px solid #008a45; }}
+    /* Contenedores de Semáforos Rediseñados de Forma Leve y Minimalista */
+    .caja-resultado {{ padding: 20px; border-radius: 8px; color: #222222 !important; margin-top: 15px; margin-bottom: 15px; }}
+    .resultado-rojo {{ background-color: #fef2f2 !important; border: 1px solid #fee2e2 !important; border-left: 8px solid #ef4444 !important; }}
+    .resultado-amarillo {{ background-color: #fffbeb !important; border: 1px solid #fef3c7 !important; border-left: 8px solid #f59e0b !important; }}
+    .resultado-verde {{ background-color: #f0fdf4 !important; border: 1px solid #dcfce7 !important; border-left: 8px solid #22c55e !important; }}
     
-    .metrica-forense {{ font-family: monospace !important; font-size: 0.85rem; background-color: #0f172a; padding: 18px; border-radius: 6px; color: #38bdf8 !important; overflow-x: auto; line-height: 1.4; }}
+    /* Reporte Forense Técnico - Adaptado con la misma tipografía y fondo claro minimalista */
+    .metrica-forense {{ font-family: inherit !important; font-size: 0.9rem; background-color: #ffffff !important; padding: 15px; border: 1px solid #e2e8f0 !important; border-radius: 6px; color: #334155 !important; overflow-x: auto; line-height: 1.5; }}
     </style>
     """, unsafe_allow_html=True)
-
-st.markdown("<h1 class='titulo-siglo21'>🛡️ Escudo Mayor</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='color: #555; font-size: 1.1rem;'>Fortalecimiento Digital para el Adulto Mayor</h3>", unsafe_allow_html=True)
 
 # ==============================================================================
 # 4. MÓDULOS DE INFRAESTRUCTURA FORENSE AVANZADA
 # ==============================================================================
 def limpiar_errores_ocr(t):
-    """Corrige desviaciones y artefactos de lectura óptica comunes"""
-    t = re.sub(r'(\b[a-zA-Z0-9-]+)\s*\.\s*([a-zA-Z0-9.-]+)', r'\1.\2', t) # Quitar espacios inter-puntos
-    t = re.sub(r'\bw\s*\.\s*w\s*\.\s*w\b', 'www', t, flags=re.IGNORECASE)   # w . w . w -> www
-    t = re.sub(r'\bww\s*\.\s*w\b', 'www', t, flags=re.IGNORECASE)           # ww . w -> www
-    t = re.sub(r'\bw\s*\.\s*ww\b', 'www', t, flags=re.IGNORECASE)           # w . ww -> www
+    """Corrige deviations y artefactos de lectura óptica comunes"""
+    t = re.sub(r'(\b[a-zA-Z0-9-]+)\s*\.\s*([a-zA-Z0-9.-]+)', r'\1.\2', t) 
+    t = re.sub(r'\bw\s*\.\s*w\s*\.\s*w\b', 'www', t, flags=re.IGNORECASE)   
+    t = re.sub(r'\bww\s*\.\s*w\b', 'www', t, flags=re.IGNORECASE)           
+    t = re.sub(r'\bw\s*\.\s*ww\b', 'www', t, flags=re.IGNORECASE)           
     return t
 
 def procesar_imagen_ocr(archivo):
@@ -142,7 +139,6 @@ def analizar_infraestructura_completa(dominio):
 
 def auditar_whois_profundo(dominio):
     try:
-        # Remover subdominios para consulta WHOIS estable si aplica
         dom_base = dominio
         partes = dominio.split('.')
         if len(partes) > 2 and partes[0] in ['www', 'w', 'ww']:
@@ -150,11 +146,11 @@ def auditar_whois_profundo(dominio):
             
         w = whois.whois(dom_base)
         return {
-            "registrador": w.get("registrar"),
-            "fecha_creacion": w.get("creation_date"),
-            "fecha_expiracion": w.get("expiration_date"),
-            "pais_registro": w.get("country"),
-            "organizacion": w.get("org")
+            "registrar": w.get("registrar"),
+            "creation_date": w.get("creation_date"),
+            "expiration_date": w.get("expiration_date"),
+            "country": w.get("country"),
+            "org": w.get("org")
         }
     except: return None
 
@@ -229,7 +225,7 @@ def ejecutar_analisis(texto_crudo):
     texto_traducido = None
     texto_analizar = texto_limpio
     
-    # Módulo de traducción bidireccional integrado
+    # Módulo de traducción inteligente bidireccional integrado
     try:
         from deep_translator import GoogleTranslator
         texto_traducido = GoogleTranslator(source='auto', target='es').translate(texto_limpio)
@@ -286,7 +282,7 @@ def ejecutar_analisis(texto_crudo):
     for email in emails:
         dominios_a_analizar.add(email.split('@')[-1])
 
-    # Pipeline Forense Profundo por cada Dominio
+    # Pipeline Forense Profundo por cada Dominio (Mapeo de Sangría Corregido)
     if dominios_a_analizar:
         for dom in dominios_a_analizar:
             log_forense.append(f"\n🔬 ANALIZANDO ENTIDAD OBJETIVO: {dom}")
@@ -311,44 +307,44 @@ def ejecutar_analisis(texto_crudo):
                 log_forense.append(f"[*] GEO - Ubicación Física: {geo_info.get('city')}, {geo_info.get('region')}, {geo_info.get('country_name')}")
                 map_data = pd.DataFrame({'lat': [geo_info.get('latitude')], 'lon': [geo_info.get('longitude')]})
 
-            # 3. Auditoría WHOIS Rigurosa
+            # 3. Auditoría WHOIS Rigurosa (Sangría Corregida Definitivamente)
             w_datos = auditar_whois_profundo(dom)
-        if w_datos and isinstance(w_datos, dict):
-            registrar = w_datos.get('registrar', 'No disponible')
-            fc = w_datos.get('fecha_creacion')
-            fe = w_datos.get('fecha_expiracion', 'No disponible')
-            pais = w_datos.get('pais_registro', 'No disponible')
+            if w_datos and isinstance(w_datos, dict):
+                registrar = w_datos.get('registrar', 'No disponible')
+                fc = w_datos.get('creation_date')
+                fe = w_datos.get('expiration_date', 'No disponible')
+                pais = w_datos.get('country', 'No disponible')
 
-            log_forense.append(f"[*] WHOIS - Registrador: {registrar}")
-            log_forense.append(f"[*] WHOIS - Fecha de Creación: {fc if fc else 'No disponible'}")
-            log_forense.append(f"[*] WHOIS - Fecha de Vencimiento: {fe}")
-            log_forense.append(f"[*] WHOIS - País Registrante: {pais}")
-            
-            if isinstance(fc, list) and len(fc) > 0: 
-                fc = fc[0]
-            
-            if fc:
-                try:
-                    if hasattr(fc, 'tzinfo') and fc.tzinfo is not None:
-                        fc = fc.replace(tzinfo=None)
-                    
-                    if isinstance(fc, datetime):
-                        antiguedad = (datetime.now() - fc).days
-                        log_forense.append(f"[*] WHOIS - Antigüedad Total del Dominio: {antiguedad} días")
-                        if antiguedad < 30:
-                            riesgo_critico = True
-                            motivo_riesgo.append(f"⏱️ **Sitio Creado Recientemente:** El dominio tiene solo {antiguedad} días de vida (Comportamiento común de fraudes temporales).")
-                    else:
-                        log_forense.append(f"[-] WHOIS - Formato de fecha no compatible para cálculo analítico: {type(fc)}")
-                except Exception as e:
-                    log_forense.append(f"[-] WHOIS - Error estructural en el cálculo de antigüedad: {str(e)}")
-        else:
-            log_forense.append("[-] WHOIS - Registro Privado o Imposible de recuperar.")
-            
+                log_forense.append(f"[*] WHOIS - Registrador: {registrar}")
+                log_forense.append(f"[*] WHOIS - Fecha de Creación: {fc if fc else 'No disponible'}")
+                log_forense.append(f"[*] WHOIS - Fecha de Vencimiento: {fe}")
+                log_forense.append(f"[*] WHOIS - País Registrante: {pais}")
+                
+                if isinstance(fc, list) and len(fc) > 0: 
+                    fc = fc[0]
+                
+                if fc:
+                    try:
+                        if hasattr(fc, 'tzinfo') and fc.tzinfo is not None:
+                            fc = fc.replace(tzinfo=None)
+                        
+                        if isinstance(fc, datetime):
+                            antiguedad = (datetime.now() - fc).days
+                            log_forense.append(f"[*] WHOIS - Antigüedad Total del Dominio: {antiguedad} días")
+                            if antiguedad < 30:
+                                riesgo_critico = True
+                                motivo_riesgo.append(f"⏱️ **Sitio Creado Recientemente:** El dominio tiene solo {antiguedad} días de vida (Comportamiento común de fraudes temporales).")
+                        else:
+                            log_forense.append(f"[-] WHOIS - Formato de fecha no compatible para cálculo analítico: {type(fc)}")
+                    except Exception as e:
+                        log_forense.append(f"[-] WHOIS - Error estructural en el cálculo de antigüedad: {str(e)}")
+            else:
+                log_forense.append("[-] WHOIS - Registro Privado o Imposible de recuperar.")
+                
             # 4. Auditoría de Seguridad SSL
             ssl_valido, ssl_detalles = auditar_ssl(dom)
             if ssl_valido:
-                log_forense.append("[*] SSL - Estado: Certificado Cifrado Válido Emmitido.")
+                log_forense.append("[*] SSL - Estado: Certificado Cifrado Válido Emitido.")
             else:
                 log_forense.append(f"[-] SSL - Alerta: Falla estructural en cifrado HTTPS o Ausencia: {ssl_detalles}")
 
@@ -374,7 +370,7 @@ def ejecutar_analisis(texto_crudo):
                     log_forense.append(f"    -> Reporte público: {f}")
 
     # ==============================================================================
-    # 6. MÓDULO VISUAL: SEMÁFORO INTELIGENTE
+    # 6. MÓDULO VISUAL: SEMÁFORO INTELIGENTE (COLORES DE FONDO LEVES ADAPTADOS)
     # ==============================================================================
     if motivo_riesgo:
         razones_html = "".join([f"<li>{m}</li>" for m in set(motivo_riesgo)])
@@ -384,7 +380,7 @@ def ejecutar_analisis(texto_crudo):
     if riesgo_critico or (urls_completas and palabras_encontradas):
         st.markdown(f"""
         <div class="caja-resultado resultado-rojo">
-            <h2 style="color: #cc0000; margin-top:0;">🔴 ALERTA DE PELIGRO CRÍTICO</h2>
+            <h2 style="color: #cc0000; margin-top:0; font-size:1.4rem;">🔴 ALERTA DE PELIGRO CRÍTICO</h2>
             <p><b>Se recomienda interrumpir de inmediato cualquier tipo de interacción. Los sistemas forenses confirman un vector de ataque activo.</b></p>
             <ul>{razones_html}</ul>
         </div>
@@ -392,7 +388,7 @@ def ejecutar_analisis(texto_crudo):
     elif palabras_encontradas or telefonos or emails:
         st.markdown(f"""
         <div class="caja-resultado resultado-amarillo">
-            <h2 style="color: #b48600; margin-top:0;">🟡 PRECAUCIÓN MÁXIMA RECOMENDADA</h2>
+            <h2 style="color: #b48600; margin-top:0; font-size:1.4rem;">🟡 PRECAUCIÓN MÁXIMA RECOMENDADA</h2>
             <p><b>Mensaje con indicios sospechosos basados en patrones conductuales. Valide la identidad de la entidad por canales oficiales.</b></p>
             <ul>{razones_html}</ul>
         </div>
@@ -400,12 +396,12 @@ def ejecutar_analisis(texto_crudo):
     else:
         st.markdown("""
         <div class="caja-resultado resultado-verde">
-            <h2 style="color: #008a45; margin-top:0;">🟢 ANÁLISIS SIN ANOMALÍAS AUTOMÁTICAS</h2>
+            <h2 style="color: #008a45; margin-top:0; font-size:1.4rem;">🟢 ANÁLISIS SIN ANOMALÍAS AUTOMÁTICAS</h2>
             <p>El sistema no detectó registros maliciosos inmediatos. De igual forma, recuerde que las instituciones legítimas nunca solicitarán credenciales privadas de forma inesperada.</p>
         </div>
         """, unsafe_allow_html=True)
 
-    # Bloque de Despliegue de Resultados del Pipeline de Texto (Original vs Traducción)
+    # Bloque de Despliegue de Resultados del Pipeline de Texto (Espejo y Traducción Avanzada)
     st.write("---")
     st.markdown("### 📝 Contenido Recuperado del Pipeline:")
     if texto_traducido and texto_traducido.strip().lower() != texto_original.strip().lower():
@@ -414,7 +410,7 @@ def ejecutar_analisis(texto_crudo):
     else:
         st.text_area("Texto Bajo Análisis:", value=texto_original, height=120, key=f"edit_{random.randint(1,9999)}")
 
-    # Reporte Forense Técnico Exhaustivo en Desplegable Monocromático de Terminal
+    # Reporte Forense Técnico - Despliegue Minimalista Compartiendo Fuente y Fondo
     with st.expander("🛠️ Ver Reporte Forense Completo de Infraestructura (Consola Técnica)", expanded=False):
         st.markdown(f"<div class='metrica-forense'>{'<br>'.join(log_forense).replace('\n', '<br>')}</div>", unsafe_allow_html=True)
         if map_data is not None and not map_data.isnull().values.any():
@@ -453,7 +449,6 @@ if st.session_state["active_tab"] == "imagen":
         
         # Despliegue automático de resultados si existe texto válido
         if st.session_state.get("stored_text_ocr"):
-            # Cuadro que muestra el texto extraído y normalizado en español
             with st.container(border=True):
                 st.markdown("📋 **Texto Detectado en la Captura (Español / Procesado):**")
                 st.write(st.session_state["stored_text_ocr"])
@@ -462,7 +457,7 @@ if st.session_state["active_tab"] == "imagen":
         elif st.session_state.get("stored_text_ocr") == "":
             st.error("No se pudo detectar texto legible dentro de la captura cargada.")
 else:
-    # Se unificó el Markdown dentro del label del text_area para eliminar el espacio en blanco molesto
+    # Label integrado para prevenir espacios en blanco residuales indeseados
     texto_ingresado = st.text_area(
         label="**Introduzca cualquier fragmento de mensaje, correo electrónico o dirección web sospechosa:**", 
         height=150, 
@@ -471,7 +466,6 @@ else:
     )
     if st.button("🔍 Iniciar Análisis de Texto", use_container_width=True):
         if texto_ingresado.strip(): 
-            # Cuadro espejo/traducción solicitado para mostrar abajo de la búsqueda
             with st.container(border=True):
                 st.markdown("📋 **Mensaje Bajo Análisis:**")
                 st.write(texto_ingresado)
