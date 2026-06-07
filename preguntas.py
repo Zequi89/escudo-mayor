@@ -243,4 +243,7 @@ TRIVIA_SEGURIDAD = [
     {
         "pregunta": "Recibe un mensaje de texto informando que el Correo Argentino tiene un paquete suyo retenido por falta de pago de tasas de aduana ($1500) y un link. Usted no compró nada afuera. ¿Qué hace?",
         "opciones": ["Hago clic por las dudas de que sea un regalo.", "Elimino el SMS. Es una campaña de phishing masiva para capturar datos de tarjetas."],
-        "
+        "respuesta": "Elimino el SMS. Es una campaña de phishing masiva para capturar datos de tarjetas.",
+        "explicacion": "El Correo Argentino no envía SMS para cobrar tasas de aduana mediante links de pago directo."
+    }
+]
