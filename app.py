@@ -74,42 +74,45 @@ GOOGLE_CX = st.secrets.get("GOOGLE_CX", None)
 # ==============================================================================
 if st.session_state["active_tab"] == "imagen":
     css_tabs = """
-    div[data-testid="stColumn"]:nth-of-type(1) button { background-color: #008a45 !important; color: white !important; font-weight: bold !important; border: none !important;}
-    div[data-testid="stColumn"]:nth-of-type(2) button { background-color: #f1f5f9 !important; color: #475569 !important; font-weight: normal !important; border: 1px solid #cbd5e1 !important;}
+    div[data-testid="stColumn"]:nth-of-type(1) button { background-color: #008a45 !important; color: white !important; font-weight: bold !important; border: none !important; }
+    div[data-testid="stColumn"]:nth-of-type(2) button { background-color: #cbd5e1 !important; color: #1e293b !important; font-weight: normal !important; border: none !important; }
     """
 else:
     css_tabs = """
-    div[data-testid="stColumn"]:nth-of-type(1) button { background-color: #f1f5f9 !important; color: #475569 !important; font-weight: normal !important; border: 1px solid #cbd5e1 !important;}
-    div[data-testid="stColumn"]:nth-of-type(2) button { background-color: #008a45 !important; color: white !important; font-weight: bold !important; border: none !important;}
+    div[data-testid="stColumn"]:nth-of-type(1) button { background-color: #cbd5e1 !important; color: #1e293b !important; font-weight: normal !important; border: none !important; }
+    div[data-testid="stColumn"]:nth-of-type(2) button { background-color: #008a45 !important; color: white !important; font-weight: bold !important; border: none !important; }
     """
 
 st.markdown(f"""
     <style>
     .stApp {{ background-color: #fcfcfc !important; }}
     
-    /* Configuración Dinámica de Solapas */
+    /* Inyección dinámica de colores según el estado */
     {css_tabs}
     
-    /* Forzar que las dos columnas de los botones se queden en 1 sola fila en celulares */
+    /* Fuerza contenedor flex en una sola línea y junta los botones reduciendo el gap */
     [data-testid="stHorizontalBlock"] {{
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         justify-content: center !important;
-        gap: 10px !important;
+        gap: 6px !important; /* Espacio mínimo entre botones para que queden pegados */
+        width: 100% !important;
     }}
     [data-testid="stHorizontalBlock"] > div {{
         width: auto !important;
         min-width: min-content !important;
+        flex-grow: 1 !important; /* Crecimiento simétrico equitativo */
     }}
     
-    /* Configuración del tamaño mínimo y la sangría antes y después del texto */
+    /* Estilo unificado para hacer los botones más grandes y cómodos en celulares */
     div[data-testid="stColumn"] button {{
-        width: auto !important;
-        padding: 4px 12px !important;
+        width: 100% !important;
+        padding: 10px 16px !important; /* Más altura y sangría horizontal equilibrada */
         height: auto !important;
-        font-size: 0.95rem !important;
+        font-size: 1.05rem !important;
         border-radius: 6px !important;
+        transition: background-color 0.2s ease !important;
     }}
     
     /* Input Boxes Estilizadas */
