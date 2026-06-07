@@ -7,10 +7,18 @@ import re
 import base64
 import socket
 import whois
+import ssl
 import pandas as pd
+import random
 from datetime import datetime
 from urllib.parse import urlparse
 from difflib import SequenceMatcher
+
+# Importar Trivia
+try:
+    from preguntas import TRIVIA_SEGURIDAD
+except ImportError:
+    TRIVIA_SEGURIDAD = [{"pregunta": "¿El banco te pide claves por WhatsApp?", "opciones": ["Sí", "No"], "respuesta": "No", "explicacion": "Ningún banco pide contraseñas por WhatsApp."}]
 
 # Configuración de la página
 st.set_page_config(page_title="Escudo Mayor", page_icon="🛡️", layout="centered")
@@ -39,7 +47,7 @@ st.markdown("""
     html, body, [class*="st-"] { font-family: sans-serif !important; }
     
     /* Título más arriba (ajuste de margen negativo) */
-    .block-container { padding-top: 1rem !important; }
+    .block-container { padding-top: 1.5rem !important; }
     h1, h2, h3 { color: #008a45 !important; font-weight: 800; text-align: center; margin-bottom: 0.5rem !important; }
     
     /* Semáforos más compactos */
@@ -50,15 +58,55 @@ st.markdown("""
     .resultado-amarillo { background-color: #fef3c7 !important; border-left: 10px solid #d97706 !important; color: #92400e !important; }
     .resultado-verde { background-color: #dcfce7 !important; border-left: 10px solid #16a34a !important; color: #166534 !important; }
     
-    .metrica-forense { font-family: sans-serif !important; font-size: 0.9rem; background-color: #f8fafc; padding: 10px; border-radius: 5px; }
+    .metrica-forense { font-family: sans-serif !important; font-size: 0.9rem; background-color: #f8fafc; padding: 15px; border-radius: 5px; }
+    .metrica-forense ul { margin-top: 5px; margin-bottom: 5px; }
+    .metrica-forense li { margin-bottom: 8px; }
+    
+    /* Contenedor de la Trivia */
+    .caja-trivia { border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; background-color: #ffffff; margin-bottom: 20px;}
 </style>
     """, unsafe_allow_html=True)
 
-st.markdown("<h1 class='titulo-siglo21'>🛡️ Escudo Mayor</h1>", unsafe_allow_html=True)
+st.markdown("<h1>🛡️ Escudo Mayor</h1>", unsafe_allow_html=True)
 st.markdown("<h3>Protección Digital para Adultos Mayores</h3>", unsafe_allow_html=True)
 
 # ==============================================================================
-# 4. MÓDULOS DEL PIPELINE FORENSE (BACK-END)
+# 4. SISTEMA DE TRIVIA DIARIA (DESAFÍO)
+# ==============================================================================
+if "pregunta_actual" not in st.session_state:
+    st.session_state.pregunta_actual = random.choice(TRIVIA_SEGURIDAD)
+    st.session_state.respondido = False
+    st.session_state.opcion_elegida = None
+
+st.markdown("<div class='caja-trivia'>", unsafe_allow_html=True)
+st.markdown("#### 🧠 Reto Diario de Seguridad")
+q = st.session_state.pregunta_actual
+st.write(f"**{q['pregunta']}**")
+
+opcion = st.radio("Seleccione su respuesta:", q['opciones'], key="radio_trivia", label_visibility="collapsed")
+
+col1, col2 = st.columns([1, 1])
+with col1:
+    if st.button("✅ Comprobar respuesta"):
+        st.session_state.respondido = True
+        st.session_state.opcion_elegida = opcion
+
+with col2:
+    if st.session_state.respondido:
+        if st.button("⏭️ Siguiente Reto"):
+            st.session_state.pregunta_actual = random.choice(TRIVIA_SEGURIDAD)
+            st.session_state.respondido = False
+            st.rerun()
+
+if st.session_state.respondido:
+    if st.session_state.opcion_elegida == q['respuesta']:
+        st.success(f"**¡Correcto!** {q['explicacion']}")
+    else:
+        st.error(f"**Incorrecto.** La respuesta correcta era: **{q['respuesta']}**. {q['explicacion']}")
+st.markdown("</div>", unsafe_allow_html=True)
+
+# ==============================================================================
+# 5. MÓDULOS DEL PIPELINE FORENSE (BACK-END)
 # ==============================================================================
 def procesar_imagen_ocr(archivo):
     try:
@@ -93,6 +141,16 @@ def auditar_whois(dominio):
         return None
     except: return None
 
+def auditar_ssl(dominio):
+    try:
+        ctx = ssl.create_default_context()
+        with ctx.wrap_socket(socket.socket(), server_hostname=dominio) as s:
+            s.settimeout(5)
+            s.connect((dominio, 443))
+            cert = s.getpeercert()
+            return True if cert else False
+    except: return False
+
 @st.cache_data(ttl=3600)
 def consultar_apis_reputacion(url_analizada):
     try:
@@ -123,7 +181,7 @@ def buscar_osint_fraude(dominio):
     except: return False
 
 # ==============================================================================
-# 5. MOTOR DE CORRELACIÓN HEURÍSTICA (NÚCLEO)
+# 6. MOTOR DE CORRELACIÓN HEURÍSTICA (NÚCLEO)
 # ==============================================================================
 def ejecutar_analisis(texto):
     
@@ -133,102 +191,111 @@ def ejecutar_analisis(texto):
     
     riesgo_critico = False
     motivo_riesgo = []
-    log_forense = "<b>[*] INICIANDO PIPELINE FORENSE DE ESCUDO MAYOR</b>\n\n"
+    
+    # Usamos una lista para construir el log de forma limpia (Punto por punto)
+    log_forense = []
+    log_forense.append("**[*] INICIANDO PIPELINE FORENSE DE ESCUDO MAYOR**")
+    
     map_data = None
     
-    # 5A. Análisis de Textos y Patrones
+    # 6A. Análisis de Textos y Patrones
     if emails:
-        log_forense += f"[+] Correos detectados: {', '.join(emails)}\n"
+        log_forense.append(f"* **Correos detectados:** {', '.join(emails)}")
         motivo_riesgo.append(f"El mensaje contiene un correo electrónico sospechoso: {', '.join(emails)}")
     if telefonos:
-        log_forense += f"[+] Teléfonos detectados: {', '.join(telefonos)}\n"
+        log_forense.append(f"* **Teléfonos detectados:** {', '.join(telefonos)}")
         motivo_riesgo.append(f"Se detectó un número telefónico. No llame ni escriba: {', '.join(telefonos)}")
 
-    # Detección exacta de palabras de la Blacklist
     palabras_encontradas = [p for p in PALABRAS_PELIGRO + PALABRAS_ALERTA if p in texto.lower()]
     
     if palabras_encontradas:
-        # Se agregan al motivo para que aparezcan en el semáforo
         palabras_str = ", ".join(set(palabras_encontradas))
-        motivo_riesgo.append(f"Detectamos palabras de alerta frecuentes en engaños: <b>{palabras_str}</b>.")
-        log_forense += f"[!] Coincidencia en Blacklist: {palabras_str}\n"
-        
-        # Si alguna es de peligro alto, se marca como crítico
+        motivo_riesgo.append(f"Detectamos palabras de alerta frecuentes en engaños: **{palabras_str}**.")
+        log_forense.append(f"* **Coincidencia en Blacklist:** {palabras_str}")
         if any(p in texto.lower() for p in PALABRAS_PELIGRO):
             riesgo_critico = True
     
-    # 5B. Análisis de Infraestructura (Forzamos ejecución siempre)
+    # 6B. Análisis de Infraestructura
     dominios_a_analizar = set()
     if urls:
         for u in urls:
             url_f = expandir_url(u.strip(".,!?\"'"))
+            log_forense.append(f"* **URL Expandida:** Enlace original apunta a {url_f}")
             dominios_a_analizar.add(urlparse(url_f).netloc)
     
     for email in emails:
         dominios_a_analizar.add(email.split('@')[-1])
 
     if dominios_a_analizar:
-        log_forense += f"\n<b>[+] AUDITORÍA DE INFRAESTRUCTURA:</b>\n"
+        log_forense.append("\n**[+] AUDITORÍA DE INFRAESTRUCTURA DETALLADA:**")
         for dom in dominios_a_analizar:
-            log_forense += f"\n--- Analizando: {dom} ---\n"
+            log_forense.append(f"\n**--- Analizando Dominio: {dom} ---**")
             
             # 1. Typosquatting
             try:
                 for marca in MARCAS_OFICIALES:
                     if 0.75 < SequenceMatcher(None, dom, marca).ratio() < 1.0:
                         riesgo_critico = True
-                        log_forense += f"[!] TYPOSQUATTING: Suplantación de {marca}\n"
-                        motivo_riesgo.append(f"El dominio <b>{dom}</b> intenta suplantar a <b>{marca}</b>.")
+                        log_forense.append(f"* ⚠️ **TYPOSQUATTING:** Intento de suplantación de {marca}")
+                        motivo_riesgo.append(f"El dominio **{dom}** intenta suplantar a **{marca}**.")
                         break
-            except Exception as e: log_forense += f"[!] Error Typosquatting: {e}\n"
+            except Exception as e: log_forense.append(f"* ❌ Error Typosquatting: {e}")
 
             # 2. Reputación
             try:
                 if consultar_apis_reputacion(dom):
                     riesgo_critico = True
-                    log_forense += "[!] REPUTACIÓN: Dominio reportado como malicioso.\n"
+                    log_forense.append("* ⚠️ **REPUTACIÓN (VirusTotal/SafeBrowsing):** Dominio reportado como malicioso.")
                     motivo_riesgo.append(f"El dominio {dom} tiene reportes de actividad maliciosa.")
-            except Exception as e: log_forense += f"[!] Error Reputación: {e}\n"
+                else: log_forense.append("* ✅ **REPUTACIÓN:** Dominio limpio en bases de datos.")
+            except Exception as e: log_forense.append(f"* ❌ Error Reputación: {e}")
             
             # 3. WHOIS
             try:
                 dias = auditar_whois(dom)
                 if dias is not None:
-                    log_forense += f"[+] WHOIS: Dominio creado hace {dias} días.\n"
+                    log_forense.append(f"* 🕒 **WHOIS (Antigüedad):** Creado hace {dias} días.")
                     if dias < 30:
                         riesgo_critico = True
-                        log_forense += f"[!] ALERTA WHOIS: Infraestructura temporal ({dias} días).\n"
-                        motivo_riesgo.append(f"El dominio {dom} es muy reciente.")
-                else: log_forense += "[+] WHOIS: No se pudo obtener antigüedad.\n"
-            except Exception as e: log_forense += f"[!] Error WHOIS: {e}\n"
+                        log_forense.append(f"* ⚠️ **ALERTA WHOIS:** Infraestructura extremadamente reciente ({dias} días).")
+                        motivo_riesgo.append(f"El dominio {dom} es muy reciente, táctica común en estafas.")
+                else: log_forense.append("* 🕒 **WHOIS:** No se pudo obtener la fecha de creación.")
+            except Exception as e: log_forense.append(f"* ❌ Error WHOIS: {e}")
 
-            # 4. DNS & Geolocalización
+            # 4. Certificado SSL
+            try:
+                if auditar_ssl(dom):
+                    log_forense.append("* 🔒 **CERTIFICADO SSL:** Válido y activo.")
+                else:
+                    log_forense.append("* 🔓 **CERTIFICADO SSL:** Inválido o inexistente.")
+            except Exception as e: log_forense.append(f"* ❌ Error SSL: {e}")
+
+            # 5. DNS & Geolocalización
             try:
                 ip, geo = analizar_infraestructura(dom)
                 if ip:
-                    log_forense += f"[+] DNS: {dom} -> {ip}\n"
+                    log_forense.append(f"* 🌍 **DNS a IP:** Resuelve a la IP {ip}")
                     if geo and not geo.get("error"):
-                        log_forense += f"[+] GEO: {geo.get('city')}, {geo.get('country_name')}\n"
+                        log_forense.append(f"* 📍 **GEOLOCALIZACIÓN:** {geo.get('city')}, {geo.get('region')}, {geo.get('country_name')} (ISP: {geo.get('org')})")
                         map_data = pd.DataFrame({'lat': [geo.get('latitude')], 'lon': [geo.get('longitude')]})
-                else: log_forense += "[+] DNS: No se pudo resolver.\n"
-            except Exception as e: log_forense += f"[!] Error DNS/GEO: {e}\n"
+                else: log_forense.append("* 🌍 **DNS:** No se pudo resolver la IP.")
+            except Exception as e: log_forense.append(f"* ❌ Error DNS/GEO: {e}")
 
-            # 5. OSINT Google Search
+            # 6. OSINT Google Search
             try:
                 if buscar_osint_fraude(dom):
-                    log_forense += f"[!] OSINT: Reportes de fraude encontrados para {dom}.\n"
-                    motivo_riesgo.append(f"Existen reportes públicos de fraude asociados a <b>{dom}</b>.")
-                else: log_forense += "[+] OSINT: Sin resultados públicos negativos.\n"
-            except Exception as e: log_forense += f"[!] Error OSINT: {e}\n"
+                    log_forense.append(f"* 🔍 **OSINT GOOGLE:** Se encontraron reportes públicos de fraude o quejas asociadas a {dom}.")
+                    motivo_riesgo.append(f"Existen reportes públicos de fraude asociados a **{dom}**.")
+                else: log_forense.append("* 🔍 **OSINT GOOGLE:** Sin resultados negativos en foros públicos.")
+            except Exception as e: log_forense.append(f"* ❌ Error OSINT: {e}")
                 
     # ==============================================================================
-    # 6. RENDERIZADO VISUAL DEL SEMÁFORO
+    # 7. RENDERIZADO VISUAL DEL SEMÁFORO
     # ==============================================================================
-    # Construcción de razones primero para evitar el NameError
     if motivo_riesgo:
         razones_html = "".join([f"<li>{motivo}</li>" for motivo in set(motivo_riesgo)])
     else:
-        razones_html = "<li>El mensaje contiene elementos inusuales.</li>"
+        razones_html = "<li>El mensaje parece ser un texto normal sin enlaces ni números peligrosos.</li>"
 
     if riesgo_critico or (urls and palabras_encontradas):
         st.markdown(f"""
@@ -253,36 +320,38 @@ def ejecutar_analisis(texto):
         """, unsafe_allow_html=True)
 
     # ==============================================================================
-    # 7. CONSOLA TÉCNICA (DEFENSA UNIVERSITARIA)
+    # 8. CONSOLA TÉCNICA Y TEXTO EXTRAÍDO (SIEMPRE VISIBLES)
     # ==============================================================================
-    if log_forense != "<b>[*] INICIANDO PIPELINE FORENSE DE ESCUDO MAYOR</b>\n\n":
-        st.write("---")
-        with st.expander("⚙️ Ver Reporte Forense Detallado"):
-            st.markdown(f"<div class='metrica-forense'>{log_forense}</div>", unsafe_allow_html=True)
-            if map_data is not None and not map_data.isnull().values.any():
-                st.write("**Atribución de Infraestructura Atacante:**")
-                st.map(map_data, zoom=3)
+    st.write("---")
+    st.markdown("### 📝 Texto analizado:")
+    st.info(texto)
+
+    # Convertimos la lista de logs a un texto con saltos de línea para que Markdown renderice la lista correctamente
+    log_texto_final = "\n".join(log_forense)
+    
+    with st.expander("⚙️ Ver Reporte Forense Detallado de Infraestructura", expanded=False):
+        st.markdown(f"<div class='metrica-forense'>{log_texto_final}</div>", unsafe_allow_html=True)
+        if map_data is not None and not map_data.isnull().values.any():
+            st.write("**Atribución Geográfica del Atacante:**")
+            st.map(map_data, zoom=3)
 
 # ==============================================================================
-# 8. PESTAÑAS Y FLUJO PRINCIPAL
+# 9. PESTAÑAS Y FLUJO PRINCIPAL
 # ==============================================================================
 tab1, tab2 = st.tabs(["📸 Revisar Imagen", "✍️ Escribir Mensaje"])
 
 with tab1:
+    # Solución definitiva al error visual del uploader: Usar un texto explícito en el label
     st.markdown("**Suba la captura de pantalla de su celular aquí:**")
-    
-    # Al ponerle una key, Streamlit gestiona el cambio de archivo automáticamente
-    archivo = st.file_uploader("Subir imagen", type=["png", "jpg", "jpeg"], key="archivo_analisis", label_visibility="collapsed")
+    archivo = st.file_uploader("Toque aquí para seleccionar una imagen", type=["png", "jpg", "jpeg"])
     
     if archivo is not None:
-        # Esto se ejecuta solo cuando hay un archivo cargado
-        # Si el usuario sube otro, Streamlit detecta el cambio en 'archivo_analisis' y refresca solo
-        texto_ext = procesar_imagen_ocr(archivo)
-        
-        if texto_ext and texto_ext.strip():
-            ejecutar_analisis(texto_ext)
-        else:
-            st.error("Error al leer la imagen. Intente con una más clara.")
+        with st.spinner("Escaneando imagen y extrayendo texto..."):
+            texto_ext = procesar_imagen_ocr(archivo)
+            if texto_ext and texto_ext.strip():
+                ejecutar_analisis(texto_ext)
+            else:
+                st.error("Error al leer la imagen. Intente con una captura más nítida.")
 
 with tab2:
     st.markdown("**Mantenga apretado y pegue el mensaje sospechoso:**")
@@ -295,6 +364,6 @@ with tab2:
 st.write("---")
 st.markdown("""
 <div style="background-color: #f4f4f4; padding: 15px; border-radius: 8px; border-left: 5px solid #008a45;">
-    💡 <b>RECORDÁ:</b> Ningún organismo, banco, empresa de servicios, obra social o prepaga te pedirá claves o tokens por mensaje. Ante cualquier duda, cortá la comunicación y contactate siempre a través de los canales oficiales.
+    💡 <b>RECORDATORIO VITAL:</b> Ningún organismo (ANSES, PAMI), banco o empresa le pedirá claves, tokens o CBU por mensaje. Ante la duda, corte y llame a los números oficiales.
 </div>
 """, unsafe_allow_html=True)
