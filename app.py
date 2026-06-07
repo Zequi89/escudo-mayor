@@ -14,6 +14,13 @@ from datetime import datetime
 from urllib.parse import urlparse
 from difflib import SequenceMatcher
 
+# CONFIGURACIÓN DE PÁGINA (Debe ser obligatoriamente el primer comando de Streamlit)
+st.set_page_config(
+    page_title="Escudo Mayor",
+    page_icon="🛡️",
+    layout="centered"
+)
+
 # Importar Trivia desde archivo externo obligatorio
 try:
     from preguntas import TRIVIA_SEGURIDAD
@@ -22,13 +29,13 @@ except ImportError:
         {"pregunta": "¿El banco te pide claves por WhatsApp?", "opciones": ["Sí", "No"], "respuesta": "No", "explicacion": "Ningún banco pide contraseñas por WhatsApp."}
     ]
 
-# Configuración estética superior: Título principal agrandado y resaltado con líneas
+# Configuración estética superior: Título principal enmarcado
 st.markdown("""
 <div style="border-top: 2px solid #008a45; border-bottom: 2px solid #008a45; padding: 16px 0; text-align: center; margin-top: 10px; margin-bottom: 10px;">
     <h1 style="color: #008a45; margin: 0; font-size: 2.7rem; font-weight: 700; letter-spacing: 1px;">🛡️ ESCUDO MAYOR</h1>
 </div>
 """, unsafe_allow_html=True)
-st.markdown("<h3 style='color: #555; font-size: 1.1rem; text-align: center; margin-bottom: 30px;'>Fortalecimiento Digital para el Adulto Mayor</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='color: #555; font-size: 1.1rem; text-align: center; margin-bottom: 5px;'>Fortalecimiento Digital para el Adulto Mayor</h3>", unsafe_allow_html=True)
 
 # Inicialización de Estados de Navegación Remota
 if "active_tab" not in st.session_state:
@@ -98,12 +105,33 @@ st.markdown(f"""
 # 4. MÓDULOS DE INFRAESTRUCTURA FORENSE AVANZADA
 # ==============================================================================
 def limpiar_errores_ocr(t):
-    """Corrige deviations y artefactos de lectura óptica comunes"""
+    """Corrige desviaciones y artefactos de lectura óptica comunes"""
     t = re.sub(r'(\b[a-zA-Z0-9-]+)\s*\.\s*([a-zA-Z0-9.-]+)', r'\1.\2', t) 
     t = re.sub(r'\bw\s*\.\s*w\s*\.\s*w\b', 'www', t, flags=re.IGNORECASE)   
     t = re.sub(r'\bww\s*\.\s*w\b', 'www', t, flags=re.IGNORECASE)           
     t = re.sub(r'\bw\s*\.\s*ww\b', 'www', t, flags=re.IGNORECASE)           
     return t
+
+def optimizar_traduccion_google(texto):
+    """Consulta la API de traducción de Google mediante peticiones HTTP estructuradas de forma robusta"""
+    if not texto or not texto.strip():
+        return ""
+    try:
+        url = "https://translate.googleapis.com/translate_a/single"
+        params = {
+            "client": "gtx",
+            "sl": "auto",
+            "tl": "es",
+            "dt": "t",
+            "q": texto
+        }
+        response = requests.get(url, params=params, timeout=6).json()
+        if response and response[0]:
+            bloques_texto = [linea[0] for linea in response[0] if linea[0]]
+            return "".join(bloques_texto)
+    except:
+        pass
+    return texto
 
 def procesar_imagen_ocr(archivo):
     try:
@@ -222,17 +250,15 @@ def ejecutar_analisis(texto_crudo):
     # Sanitización de la capa OCR/Texto
     texto_limpio = limpiar_errores_ocr(texto_crudo)
     texto_original = texto_limpio
-    texto_traducido = None
+    
+    # Módulo robusto de traducción directa mediante la API de Google
+    texto_traducido = optimizar_traduccion_google(texto_limpio)
+    hubo_traduccion = False
     texto_analizar = texto_limpio
     
-    # Módulo de traducción inteligente bidireccional integrado
-    try:
-        from deep_translator import GoogleTranslator
-        texto_traducido = GoogleTranslator(source='auto', target='es').translate(texto_limpio)
-        if texto_traducido and texto_traducido.strip().lower() != texto_limpio.strip().lower():
-            texto_analizar = texto_traducido
-    except:
-        pass
+    if texto_traducido and texto_traducido.strip().lower() != texto_limpio.strip().lower():
+        texto_analizar = texto_traducido
+        hubo_traduccion = True
 
     # Extracción inclusiva basada en especificaciones IANA TLD
     urls_completas = re.findall(r'(https?://[^\s]+)', texto_analizar)
@@ -282,7 +308,7 @@ def ejecutar_analisis(texto_crudo):
     for email in emails:
         dominios_a_analizar.add(email.split('@')[-1])
 
-    # Pipeline Forense Profundo por cada Dominio (Mapeo de Sangría Corregido)
+    # Pipeline Forense Profundo por cada Dominio
     if dominios_a_analizar:
         for dom in dominios_a_analizar:
             log_forense.append(f"\n🔬 ANALIZANDO ENTIDAD OBJETIVO: {dom}")
@@ -307,7 +333,7 @@ def ejecutar_analisis(texto_crudo):
                 log_forense.append(f"[*] GEO - Ubicación Física: {geo_info.get('city')}, {geo_info.get('region')}, {geo_info.get('country_name')}")
                 map_data = pd.DataFrame({'lat': [geo_info.get('latitude')], 'lon': [geo_info.get('longitude')]})
 
-            # 3. Auditoría WHOIS Rigurosa (Sangría Corregida Definitivamente)
+            # 3. Auditoría WHOIS Rigurosa
             w_datos = auditar_whois_profundo(dom)
             if w_datos and isinstance(w_datos, dict):
                 registrar = w_datos.get('registrar', 'No disponible')
@@ -401,14 +427,14 @@ def ejecutar_analisis(texto_crudo):
         </div>
         """, unsafe_allow_html=True)
 
-    # Bloque de Despliegue de Resultados del Pipeline de Texto (Espejo y Traducción Avanzada)
+    # Bloque Desduplicado de Despliegue de Resultados (Se muestra UNA Sola Vez y Traducido)
     st.write("---")
-    st.markdown("### 📝 Contenido Recuperado del Pipeline:")
-    if texto_traducido and texto_traducido.strip().lower() != texto_original.strip().lower():
-        st.text_area("Texto Original Capturado:", value=texto_original, height=100, key=f"orig_{random.randint(1,9999)}")
-        st.text_area("Traducción Automática al Español (Utilizada para Correlación de Contenido):", value=texto_traducido, height=100, key=f"trad_{random.randint(1,9999)}")
+    if hubo_traduccion:
+        st.text_area("📝 Mensaje Analizado (Traducción al Español Detectada):", value=texto_analizar, height=120, key=f"edit_{random.randint(1,9999)}")
+        with st.expander("Ver Texto en Idioma Original Recibido", expanded=False):
+            st.text(texto_original)
     else:
-        st.text_area("Texto Bajo Análisis:", value=texto_original, height=120, key=f"edit_{random.randint(1,9999)}")
+        st.text_area("📝 Mensaje Bajo Análisis:", value=texto_original, height=120, key=f"edit_{random.randint(1,9999)}")
 
     # Reporte Forense Técnico - Despliegue Minimalista Compartiendo Fuente y Fondo
     with st.expander("🛠️ Ver Reporte Forense Completo de Infraestructura (Consola Técnica)", expanded=False):
@@ -447,12 +473,8 @@ if st.session_state["active_tab"] == "imagen":
                 st.session_state["stored_text_ocr"] = texto_ocr
                 st.session_state["last_processed_file_id"] = file_id
         
-        # Despliegue automático de resultados si existe texto válido
+        # Despliegue automático de resultados si existe texto válido (Espejo duplicado removido)
         if st.session_state.get("stored_text_ocr"):
-            with st.container(border=True):
-                st.markdown("📋 **Texto Detectado en la Captura (Español / Procesado):**")
-                st.write(st.session_state["stored_text_ocr"])
-            
             ejecutar_analisis(st.session_state["stored_text_ocr"])
         elif st.session_state.get("stored_text_ocr") == "":
             st.error("No se pudo detectar texto legible dentro de la captura cargada.")
@@ -466,10 +488,7 @@ else:
     )
     if st.button("🔍 Iniciar Análisis de Texto", use_container_width=True):
         if texto_ingresado.strip(): 
-            with st.container(border=True):
-                st.markdown("📋 **Mensaje Bajo Análisis:**")
-                st.write(texto_ingresado)
-                
+            # Espejo duplicado removido para ir directo a la función centralizada
             ejecutar_analisis(texto_ingresado)
         else:
             st.warning("Ingrese un texto o enlace.")
