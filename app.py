@@ -29,13 +29,13 @@ except ImportError:
         {"pregunta": "¿El banco te pide claves por WhatsApp?", "opciones": ["Sí", "No"], "respuesta": "No", "explicacion": "Ningún banco pide contraseñas por WhatsApp o redes sociales."}
     ]
 
-# Título Principal Estilizado e Identidad Visual de la Plataforma
+# Título Principal Estilizado e Identidad Visual (Compactada para eliminar espacios vacíos)
 st.markdown("""
-<div style="border-top: 3px solid #008a45; border-bottom: 3px solid #008a45; padding: 18px 0; text-align: center; margin-top: 10px; margin-bottom: 10px;">
-    <h1 style="color: #008a45; margin: 0; font-size: 2.8rem; font-weight: 800; letter-spacing: 1.5px;">🛡️ ESCUDO MAYOR</h1>
+<div style="border-top: 3px solid #008a45; border-bottom: 3px solid #008a45; padding: 14px 0; text-align: center; margin-top: 5px; margin-bottom: 5px;">
+    <h1 style="color: #008a45; margin: 0; font-size: 2.6rem; font-weight: 800; letter-spacing: 1.5px;">🛡️ ESCUDO MAYOR</h1>
 </div>
+<p style='color: #4a5568; font-size: 1.15rem; text-align: center; margin-top: 8px; margin-bottom: 15px; font-weight: 500;'>Fortalecimiento Digital para el Adulto Mayor</p>
 """, unsafe_allow_html=True)
-st.markdown("<h3 style='color: #4a5568; font-size: 1.15rem; text-align: center; margin-top: -5px; margin-bottom: 25px;'>Fortalecimiento Digital para el Adulto Mayor</h3>", unsafe_allow_html=True)
 
 # Manejo de Estados de Navegación por Solapas
 if "active_tab" not in st.session_state:
@@ -54,6 +54,12 @@ MARCAS_OFICIALES = [
     'anses.gob.ar', 'bna.com.ar', 'bancoprovincia.com.ar', 
     'galicia.com.ar', 'macro.com.ar', 'santander.com.ar',
     'netflix.com', 'mercadolibre.com.ar', 'mercadopago.com.ar', 'pami.org.ar'
+]
+
+# Plataformas globales propensas a falsos positivos por abuso de terceros
+SITIOS_CONFIANZA_GLOBAL = [
+    'instagram.com', 'facebook.com', 'google.com', 'youtube.com', 
+    'twitter.com', 'x.com', 'whatsapp.com', 'linkedin.com', 't.me'
 ]
 
 # Safeguards para Secrets de Producción / Claves de Prueba
@@ -125,8 +131,22 @@ st.markdown(f"""
         color: #444444 !important;
     }}
     
-    /* Bloque Técnico Consola Forense */
-    .metrica-forense {{ font-family: 'Courier New', Courier, monospace !important; font-size: 0.88rem; background-color: #1e293b !important; padding: 18px; border-radius: 8px; color: #38bdf8 !important; overflow-x: auto; line-height: 1.6; }}
+    /* Bloque Técnico Consola Forense Minimalista e Integrado */
+    .metrica-forense {{ 
+        font-family: inherit !important; 
+        font-size: 0.95rem; 
+        background-color: #fcfcfc !important; 
+        padding: 5px 0px; 
+        color: #334155 !important; 
+        line-height: 1.6; 
+    }}
+    .bloque-linea {{
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }}
+    .bloque-linea:last-child {{
+        border-bottom: none;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -157,7 +177,7 @@ def procesar_imagen_ocr(archivo):
     try:
         if OCR_API_KEY == "PRUEBA_OCR_FREE_KEY":
             # Modo Simulación Académica si no hay Key Real
-            return "Aviso Urgente del BANCO: Su token expiró. Ingrese a www.link-checking-anses.com para validar sus datos inmediatamente."
+            return "Atención: detectamos actividad inusual en su perfil de instagram.com. Ingrese a www.soporte-seguridad-instagram.com para resolver."
         url = "https://api.ocr.space/parse/image"
         files = {'file': archivo}
         payload = {'apikey': OCR_API_KEY, 'language': 'spa', 'isOverlayRequired': False}
@@ -221,7 +241,10 @@ def consultar_apis_reputacion_completa(url_analizada):
     }
     # Validación o Simulación para demostración académica segura
     if "PRUEBA" in GOOGLE_API_KEY or "PRUEBA" in VT_API_KEY:
-        if "anses" in url_analizada.lower() and "gob.ar" not in url_analizada.lower():
+        if "instagram.com" in url_analizada.lower() or "facebook.com" in url_analizada.lower():
+            res_final["vt_maliciosos"] = 1  # Forzamos reporte positivo aislado para probar mitigación
+            res_final["vt_stats"] = {"malicious": 1, "suspicious": 0, "harmless": 70}
+        elif "anses" in url_analizada.lower() and "gob.ar" not in url_analizada.lower():
             res_final["google_match"] = True
             res_final["google_detalles"] = "Alerta de INGENIERÍA SOCIAL (Phishing) detectada por Google Safe Browsing."
             res_final["vt_maliciosos"] = 4
@@ -298,24 +321,22 @@ def ejecutar_analisis(texto_crudo):
     
     motivo_riesgo = []
     log_forense = [
-        "======================================================================",
-        "          LOG DE TELEMETRÍA FORENSE AVANZADA - ESCUDO MAYOR          ",
-        "======================================================================",
-        f"Timestamp del Análisis: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        "----------------------------------------------------------------------"
+        f"Fecha y Hora de la Auditoría: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     ]
     
     # Flags operativos para el Semáforo
     api_positiva_detectada = False
     sitio_informado_phishing = False
     algo_sospechoso = False
+    es_sitio_confianza = False
+    sitio_evaluado_name = ""
 
     if emails:
-        log_forense.append(f"[+] Direcciones de Correo Detectadas: {', '.join(emails)}")
+        log_forense.append(f"Direcciones de Correo Detectadas: {', '.join(emails)}")
         motivo_riesgo.append(f"📧 **Remitente o dirección sospechosa:** {', '.join(emails)}")
         algo_sospechoso = True
     if telefonos:
-        log_forense.append(f"[+] Canales Telefónicos Extraídos: {', '.join(telefonos)}")
+        log_forense.append(f"Canales Telefónicos Extraídos: {', '.join(telefonos)}")
         motivo_riesgo.append(f"📱 **Línea de contacto telefónico no verificada:** {', '.join(telefonos)}")
         algo_sospechoso = True
 
@@ -325,7 +346,7 @@ def ejecutar_analisis(texto_crudo):
     
     if cuenta_palabras > 0:
         palabras_str = ", ".join(set(palabras_encontradas))
-        log_forense.append(f"[!] Coincidencia de Palabras Clave ({cuenta_palabras}): {palabras_str}")
+        log_forense.append(f"Coincidencia de Palabras Clave ({cuenta_palabras}): {palabras_str}")
         motivo_riesgo.append(f"🛑 **Indicadores de Manipulación:** Uso de términos de presión o alerta (*{palabras_str}*).")
 
     # Consolidación de entidades de red
@@ -341,20 +362,24 @@ def ejecutar_analisis(texto_crudo):
     # Pipeline Forense de Dominios
     if dominios_a_analizar:
         for dom in dominios_a_analizar:
-            log_forense.append(f"\n🔬 ESCANEO ESTRUCTURAL DE DOMINIO: {dom}")
-            log_forense.append("-" * 60)
+            log_forense.append(f"Escaneo Estructural de Dominio: {dom}")
             
+            # Evaluación perimetral de Whitelist de Redes Sociales / Sitios de Confianza
+            if any(confianza in dom for confianza in SITIOS_CONFIANZA_GLOBAL):
+                es_sitio_confianza = True
+                sitio_evaluado_name = dom
+
             # Detección de Typosquatting
             for marca in MARCAS_OFICIALES:
                 if 0.75 < SequenceMatcher(None, dom, marca).ratio() < 1.0:
                     algo_sospechoso = True
-                    log_forense.append(f"[CRÍTICO] Análisis Léxico detectó Typosquatting con la entidad oficial: {marca}")
+                    log_forense.append(f"Análisis Léxico detectó Typosquatting con la entidad oficial: {marca}")
                     motivo_riesgo.append(f"🎭 **Intento de Suplantación Falsa:** El dominio `{dom}` es peligrosamente similar a la web legítima `{marca}`.")
                     break
 
             # DNS e Infraestructura
             dns_info, geo_info = analizar_infraestructura_completa(dom)
-            log_forense.append(f"[*] DNS Pasivo - IP de Destino: {dns_info['ip']}")
+            log_forense.append(f"DNS Pasivo - IP de Destino: {dns_info['ip']} ({geo_info.get('country_name', 'Ubicación Distribuida/Oculta')})")
             
             # WHOIS Deep Audit
             w_datos = auditar_whois_profundo(dom)
@@ -363,47 +388,54 @@ def ejecutar_analisis(texto_crudo):
                 if isinstance(fc, list) and len(fc) > 0: fc = fc[0]
                 if fc and isinstance(fc, datetime):
                     antiguedad = (datetime.now() - fc.replace(tzinfo=None)).days
-                    log_forense.append(f"[*] WHOIS Audit - Antigüedad del registro: {antiguedad} días")
+                    log_forense.append(f"WHOIS Audit - Antigüedad del registro: {antiguedad} días")
                     if antiguedad < 30:
                         algo_sospechoso = True
                         motivo_riesgo.append(f"⏱️ **Infraestructura de Creación Inmediata:** El sitio web fue creado hace menos de un mes ({antiguedad} días).")
 
             # Auditoría SSL
             ssl_valido, ssl_detalles = auditar_ssl(dom)
-            log_forense.append(f"[*] SSL/TLS Integrity Check: {'Válido' if ssl_valido else 'Falla/Ausente - ' + str(ssl_detalles)}")
+            log_forense.append(f"SSL/TLS Integrity Check: {'Válido' if ssl_valido else 'Falla/Ausente - ' + str(ssl_detalles)}")
 
-            # CONSULTA EXPLICITA A APIS DE REPUTACIÓN GLOBALES (Requerido en logs)
+            # CONSULTA EXPLICITA A APIS DE REPUTACIÓN GLOBALES
             rep = consultar_apis_reputacion_completa(dom)
-            log_forense.append(f"[API] Google Safe Browsing Match: {rep['google_match']} ({rep['google_detalles']})")
-            log_forense.append(f"[API] VirusTotal Detections: {rep['vt_maliciosos']} motores positivos")
-            if rep["vt_stats"]:
-                log_forense.append(f"    -> Desglose VT: {rep['vt_stats']}")
-                
+            log_forense.append(f"Google Safe Browsing Match: {rep['google_match']} ({rep['google_detalles']})")
+            log_forense.append(f"VirusTotal Detections: {rep['vt_maliciosos']} motores positivos")
+            
             if rep["google_match"] or rep["vt_maliciosos"] > 0:
                 api_positiva_detectada = True
-                motivo_riesgo.append(f"🚨 **Lista Negra Técnica:** Reportado formalmente en bases de datos mundiales de Phishing/Malware.")
+                if not es_sitio_confianza:
+                    motivo_riesgo.append(f"🚨 **Lista Negra Técnica:** Reportado formalmente en bases de datos mundiales de Phishing/Malware.")
 
             # Módulo OSINT de Reputación
             total_osint, fragmentos = buscar_osint_fraude_detallado(dom)
-            log_forense.append(f"[OSINT] Menciones públicas de estafa indexadas en Google: {total_osint}")
+            log_forense.append(f"Menciones públicas de estafa indexadas en Google: {total_osint}")
             if total_osint > 0:
-                sitio_informado_phishing = True
-                motivo_riesgo.append(f"🔍 **Historial de Denuncias Públicas:** Registra alertas previas indexadas en motores de búsqueda vinculadas a estafas.")
+                if not es_sitio_confianza:
+                    sitio_informado_phishing = True
+                    motivo_riesgo.append(f"🔍 **Historial de Denuncias Públicas:** Registra alertas previas indexadas en motores de búsqueda vinculadas a estafas.")
 
     # ==============================================================================
-    # 6. REESTRUCTURACIÓN DE LOGICA DEL SEMÁFORO INTELIGENTE
+    # 6. REESTRUCTURACIÓN DE LOGICA DEL SEMÁFORO INTELIGENTE Y ALERTAS
     # ==============================================================================
-    # REGLAS REESTRUCTURADAS:
-    # ROJO: API Positiva, Informado Phishing, Algo sospechoso, o cuenta de palabras >= 3
-    # AMARILLO: Cuenta de palabras es 1 o 2, Y absolutamente NINGÚN reporte/api/sospecha
-    # VERDE: Todo limpio, sin palabras ni reportes
-    
-    if api_positiva_detectada or sitio_informado_phishing or algo_sospechoso or (cuenta_palabras >= 3):
-        color_veredicto = "rojo"
-    elif (1 <= cuenta_palabras <= 2) and not (api_positiva_detectada or sitio_informado_phishing or algo_sospechoso):
+    if es_sitio_confianza:
         color_veredicto = "amarillo"
+        motivo_riesgo = [
+            f"✨ **Plataforma Verificada:** El enlace apunta a una aplicación real y legítima (`{sitio_evaluado_name}`). No está bloqueada.",
+            "⚠️ **¡Cuidado con perfiles engañosos!** Aunque la infraestructura de la red social es de confianza, recuerde que los estafadores suelen crear cuentas o perfiles falsos dentro de Instagram o Facebook para mandar mensajes simulando ser empresas o parientes."
+        ]
     else:
-        color_veredicto = "verde"
+        if api_positiva_detectada or sitio_informado_phishing or algo_sospechoso or (cuenta_palabras >= 3):
+            color_veredicto = "rojo"
+        elif (1 <= cuenta_palabras <= 2) and not (api_positiva_detectada or sitio_informado_phishing or algo_sospechoso):
+            color_veredicto = "amarillo"
+        else:
+            color_veredicto = "verde"
+
+    # Inyección automática de alertas sonoras (Beeps limpios por URI de SoundJay)
+    if color_veredicto in ["rojo", "amarillo"]:
+        sound_url = "https://www.soundjay.com/buttons/sounds/button-10.mp3" if color_veredicto == "rojo" else "https://www.soundjay.com/buttons/sounds/button-4.mp3"
+        st.markdown(f'<audio src="{sound_url}" autoplay></audio>', unsafe_allow_html=True)
 
     # Inyección de HTML dinámico según la categoría del Semáforo Reestructurado
     razones_html = "".join([f"<li>{m}</li>" for m in set(motivo_riesgo)]) if motivo_riesgo else "<li>No hay alertas técnicas automáticas activas en los diccionarios conceptuales.</li>"
@@ -420,7 +452,7 @@ def ejecutar_analisis(texto_crudo):
         st.markdown(f"""
         <div class="caja-resultado resultado-amarillo">
             <h2 style="color: #d46b08; margin-top:0; font-size:1.4rem; font-weight:700;">🟡 PRECAUCIÓN RECOMENDADA</h2>
-            <p><b>Mensaje con intenciones dudosas basadas en patrones aislados de texto. Valide siempre la veracidad llamando directamente a la entidad oficial.</b></p>
+            <p><b>Mensaje o plataforma bajo análisis con intenciones dudosas basadas en patrones aislados. Valide siempre la veracidad del perfil antes de responder.</b></p>
             <ul style="margin-top: 10px;">{razones_html}</ul>
         </div>
         """, unsafe_allow_html=True)
@@ -443,9 +475,10 @@ def ejecutar_analisis(texto_crudo):
     else:
         st.text_area("📝 Mensaje Bajo Análisis Técnico:", value=texto_original, height=120, key=f"disp_orig_{random.randint(1,9999)}")
 
-    # Despliegue de Consola Forense Avanzada
+    # Despliegue de Consola Forense Avanzada (Diseño Minimalista e Integrado)
     with st.expander("🛠️ Ver Reporte Forense Completo de Infraestructura (Consola Técnica)", expanded=False):
-        st.markdown(f"<div class='metrica-forense'>{'<br>'.join(log_forense).replace('\n', '<br>')}</div>", unsafe_allow_html=True)
+        html_forense = "".join([f"<div class='bloque-linea'>🔹 {item}</div>" for item in log_forense])
+        st.markdown(f"<div class='metrica-forense'>{html_forense}</div>", unsafe_allow_html=True)
 
 # ==============================================================================
 # 7. INTERFAZ DE USUARIO CONSOLIDADA (CUSTOM TABS SIN TEXTO DUPLICADO)
