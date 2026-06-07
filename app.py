@@ -31,8 +31,8 @@ except ImportError:
 
 # Título Principal Estilizado e Identidad Visual (Compactada para eliminar espacios vacíos)
 st.markdown("""
-<div style="border-top: 3px solid #008a45; border-bottom: 3px solid #008a45; padding: 14px 0; text-align: center; margin-top: 5px; margin-bottom: 5px;">
-    <h1 style="color: #008a45; margin: 0; font-size: 2.6rem; font-weight: 800; letter-spacing: 1.5px;">🛡️ ESCUDO MAYOR</h1>
+<div style="border-top: 3px solid #008a45; border-bottom: 3px solid #008a45; padding: 12px 0; text-align: center; margin-top: 5px; margin-bottom: 5px;">
+    <h1 style="color: #008a45; margin: 0; font-size: 2.6rem; font-weight: 800; letter-spacing: 1.5px;">🛡️ Escudo Mayor</h1>
 </div>
 <p style='color: #4a5568; font-size: 1.15rem; text-align: center; margin-top: 8px; margin-bottom: 15px; font-weight: 500;'>Fortalecimiento Digital para el Adulto Mayor</p>
 """, unsafe_allow_html=True)
