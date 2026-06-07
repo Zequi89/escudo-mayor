@@ -475,10 +475,38 @@ def ejecutar_analisis(texto_crudo):
     else:
         st.text_area("📝 Mensaje Bajo Análisis Técnico:", value=texto_original, height=120, key=f"disp_orig_{random.randint(1,9999)}")
 
-    # Despliegue de Consola Forense Avanzada (Diseño Minimalista e Integrado)
+    # Despliegue de Consola Forense Avanzada (Diseño Ultra-Compacto y Agrupado por Jerarquía)
     with st.expander("🛠️ Ver Reporte Forense Completo de Infraestructura (Consola Técnica)", expanded=False):
-        html_forense = "".join([f"<div class='bloque-linea'>🔹 {item}</div>" for item in log_forense])
-        st.markdown(f"<div class='metrica-forense'>{html_forense}</div>", unsafe_allow_html=True)
+        html_lineas = []
+        es_primer_dominio = True
+        
+        for item in log_forense:
+            # Detectar inicio de un nuevo contexto de dominio
+            if "Escaneo Estructural de Dominio" in item:
+                margin_top = "0px" if es_primer_dominio else "10px"
+                border_top = "none" if es_primer_dominio else "1px dashed #e2e8f0"
+                es_primer_dominio = False
+                
+                html_lineas.append(
+                    f"<div style='margin-top: {margin_top}; padding-top: 5px; border-top: {border_top}; font-weight: 700; color: #008a45; font-size: 0.95rem; line-height: 1.2;'>🌐 {item}</div>"
+                )
+            # Detectar metadatos globales del análisis inicial
+            elif any(header in item for header in ["Fecha y Hora", "Coincidencia de Palabras", "Direcciones de Correo", "Canales Telefónicos"]):
+                html_lineas.append(
+                    f"<div style='padding: 1px 0; font-weight: 600; color: #1e293b; font-size: 0.95rem; line-height: 1.2;'>📋 {item}</div>"
+                )
+            # Métricas anidadas dependientes del dominio bajo inspección
+            else:
+                html_lineas.append(
+                    f"<div style='padding: 0.5px 0; padding-left: 18px; font-size: 0.88rem; color: #475569; line-height: 1.2;'>• {item}</div>"
+                )
+        
+        # Renderizado final con herencia tipográfica limpia del sistema de la app
+        st.markdown(f"""
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; background-color: #fcfcfc; padding: 2px 0;">
+            {"".join(html_lineas)}
+        </div>
+        """, unsafe_allow_html=True)
 
 # ==============================================================================
 # 7. INTERFAZ DE USUARIO CONSOLIDADA (CUSTOM TABS SIN TEXTO DUPLICADO)
