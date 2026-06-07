@@ -543,7 +543,7 @@ with col_tab2:
         st.session_state["active_tab"] = "texto"
         st.rerun()
 
-st.write("") 
+st.write("")
 
 # Bloques de Entrada Aislados sin Impresión Espejo Auxiliar
 if st.session_state["active_tab"] == "imagen":
