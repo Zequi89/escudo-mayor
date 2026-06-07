@@ -431,8 +431,8 @@ def ejecutar_analisis(texto_crudo):
             color_veredicto = "amarillo"
         else:
             color_veredicto = "verde"
-
-       # Inyección de HTML dinámico según la categoría del Semáforo Reestructurado
+    
+    # Inyección de HTML dinámico según la categoría del Semáforo Reestructurado
     razones_html = "".join([f"<li>{m}</li>" for m in set(motivo_riesgo)]) if motivo_riesgo else "<li>No hay alertas técnicas automáticas activas en los diccionarios conceptuales.</li>"
 
     if color_veredicto == "rojo":
