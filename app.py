@@ -310,22 +310,34 @@ def ejecutar_analisis(texto_crudo):
             # 3. Auditoría WHOIS Rigurosa
             w_datos = auditar_whois_profundo(dom)
             if w_datos:
-                log_forense.append(f"[*] WHOIS - Registrador: {w_datos['registrador']}")
+                log_forense.append(f"[*] WHOIS - Registrador: {w_datos['registrar']}")
                 log_forense.append(f"[*] WHOIS - Fecha de Creación: {w_datos['fecha_creacion']}")
                 log_forense.append(f"[*] WHOIS - Fecha de Vencimiento: {w_datos['fecha_expiracion']}")
                 log_forense.append(f"[*] WHOIS - País Registrante: {w_datos['pais_registro']}")
                 
                 fc = w_datos['fecha_creacion']
-                if isinstance(fc, list): fc = fc[0]
-                if fc and isinstance(fc, datetime):
-                    antiguedad = (datetime.now() - fc).days
-                    log_forense.append(f"[*] WHOIS - Antigüedad Total del Dominio: {antiguedad} días")
-                    if antiguedad < 30:
-                        riesgo_critico = True
-                        motivo_riesgo.append(f"⏱️ **Sitio Creado Recientemente:** El dominio tiene solo {antiguedad} días de vida (Comportamiento común de fraudes temporales).")
+                if isinstance(fc, list): 
+                    fc = fc[0]
+                
+                if fc:
+                    try:
+                        # Remover información de zona horaria si está presente (convierte aware a naive)
+                        if hasattr(fc, 'tzinfo') and fc.tzinfo is not None:
+                            fc = fc.replace(tzinfo=None)
+                        
+                        # Validar que efectivamente sea un objeto datetime ejecutable
+                        if isinstance(fc, datetime):
+                            antiguedad = (datetime.now() - fc).days
+                            log_forense.append(f"[*] WHOIS - Antigüedad Total del Dominio: {antiguedad} días")
+                            if antiguedad < 30:
+                                riesgo_critico = True
+                                motivo_riesgo.append(f"⏱️ **Sitio Creado Recientemente:** El dominio tiene solo {antiguedad} días de vida (Comportamiento común de fraudes temporales).")
+                        else:
+                            log_forense.append(f"[-] WHOIS - Formato de fecha no compatible para cálculo analítico: {type(fc)}")
+                    except Exception as e:
+                        log_forense.append(f"[-] WHOIS - Error estructural en el cálculo de antigüedad: {str(e)}")
             else:
                 log_forense.append("[-] WHOIS - Registro Privado o Imposible de recuperar.")
-
             # 4. Auditoría de Seguridad SSL
             ssl_valido, ssl_detalles = auditar_ssl(dom)
             if ssl_valido:
