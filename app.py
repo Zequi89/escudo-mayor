@@ -74,13 +74,13 @@ GOOGLE_CX = st.secrets.get("GOOGLE_CX", None)
 # ==============================================================================
 if st.session_state["active_tab"] == "imagen":
     css_tabs = """
-    div[data-testid="stColumn"]:nth-of-type(1) button { background-color: #008a45 !important; color: white !important; font-weight: bold !important; height: 55px !important; font-size: 1.1rem !important; border: none !important; width: 100% !important; border-radius: 8px !important;}
-    div[data-testid="stColumn"]:nth-of-type(2) button { background-color: #f1f5f9 !important; color: #475569 !important; font-weight: normal !important; height: 55px !important; font-size: 1.1rem !important; border: 1px solid #cbd5e1 !important; width: 100% !important; border-radius: 8px !important;}
+    div[data-testid="stColumn"]:nth-of-type(1) button { background-color: #008a45 !important; color: white !important; font-weight: bold !important; border: none !important;}
+    div[data-testid="stColumn"]:nth-of-type(2) button { background-color: #f1f5f9 !important; color: #475569 !important; font-weight: normal !important; border: 1px solid #cbd5e1 !important;}
     """
 else:
     css_tabs = """
-    div[data-testid="stColumn"]:nth-of-type(1) button { background-color: #f1f5f9 !important; color: #475569 !important; font-weight: normal !important; height: 55px !important; font-size: 1.1rem !important; border: 1px solid #cbd5e1 !important; width: 100% !important; border-radius: 8px !important;}
-    div[data-testid="stColumn"]:nth-of-type(2) button { background-color: #008a45 !important; color: white !important; font-weight: bold !important; height: 55px !important; font-size: 1.1rem !important; border: none !important; width: 100% !important; border-radius: 8px !important;}
+    div[data-testid="stColumn"]:nth-of-type(1) button { background-color: #f1f5f9 !important; color: #475569 !important; font-weight: normal !important; border: 1px solid #cbd5e1 !important;}
+    div[data-testid="stColumn"]:nth-of-type(2) button { background-color: #008a45 !important; color: white !important; font-weight: bold !important; border: none !important;}
     """
 
 st.markdown(f"""
@@ -89,6 +89,28 @@ st.markdown(f"""
     
     /* Configuración Dinámica de Solapas */
     {css_tabs}
+    
+    /* Forzar que las dos columnas de los botones se queden en 1 sola fila en celulares */
+    [data-testid="stHorizontalBlock"] {{
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: center !important;
+        gap: 10px !important;
+    }}
+    [data-testid="stHorizontalBlock"] > div {{
+        width: auto !important;
+        min-width: min-content !important;
+    }}
+    
+    /* Configuración del tamaño mínimo y la sangría antes y después del texto */
+    div[data-testid="stColumn"] button {{
+        width: auto !important;
+        padding: 4px 12px !important;
+        height: auto !important;
+        font-size: 0.95rem !important;
+        border-radius: 6px !important;
+    }}
     
     /* Input Boxes Estilizadas */
     .stTextArea textarea, .stFileUploader {{ 
@@ -239,7 +261,7 @@ def consultar_apis_reputacion_completa(url_analizada):
         "google_match": False, "google_detalles": "Sin alertas registradas",
         "vt_maliciosos": 0, "vt_stats": {}
     }
-    # Validación o Simulación para demostración académica segura
+    # Validation o Simulación para demostración académica segura
     if "PRUEBA" in GOOGLE_API_KEY or "PRUEBA" in VT_API_KEY:
         if "instagram.com" in url_analizada.lower() or "facebook.com" in url_analizada.lower():
             res_final["vt_maliciosos"] = 1  # Forzamos reporte positivo aislado para probar mitigación
@@ -509,12 +531,12 @@ def ejecutar_analisis(texto_crudo):
 col_tab1, col_tab2 = st.columns(2)
 
 with col_tab1:
-    if st.button("Analizar Imagen", use_container_width=True, key="tab_imagen_btn"):
+    if st.button("Analizar Imagen", key="tab_imagen_btn"):
         st.session_state["active_tab"] = "imagen"
         st.rerun()
 
 with col_tab2:
-    if st.button("Analizar Texto", use_container_width=True, key="tab_texto_btn"):
+    if st.button("Analizar Texto", key="tab_texto_btn"):
         st.session_state["active_tab"] = "texto"
         st.rerun()
 
