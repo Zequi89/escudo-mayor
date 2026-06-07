@@ -1,7 +1,9 @@
 [theme]
-base = "light"
 primaryColor = "#008a45"
 backgroundColor = "#fcfcfc"
 secondaryBackgroundColor = "#eafaf1"
 textColor = "#111111"
 font = "sans serif"
+
+[ui]
+hideTopBar = true
