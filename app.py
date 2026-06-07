@@ -569,7 +569,7 @@ with st.container(border=True):
 st.write("---")
 with st.container(border=True):
     st.markdown("""
-    💡 <b>CONSEJO DE SEGURIDAD:</b> Ninguna entidad legítima (ANSES, Bancos, PAMI) le exigirá transferencias de dinero urgentes, tokens de seguridad o claves privadas por vías informales o no verificadas.
-    """, unsafe_allow_html=True)
+    💡 <b><b>RECORDATORIO:</b> Ningún organismo, banco, empresa de servicios, obra social o prepaga te pedirá claves o tokens por mensaje. Ante cualquier duda, contactate través de los canales oficiales.
+     """, unsafe_allow_html=True)
 
 st.markdown('<p style="font-size: 0.75rem; color: #718096; text-align: center; margin-top: 15px;">🛡️ Entorno Académico de Simulación Forense - Licenciatura en Seguridad Informática - Universidad Siglo 21.</p>', unsafe_allow_html=True)
