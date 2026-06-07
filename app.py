@@ -269,24 +269,20 @@ def ejecutar_analisis(texto):
 tab1, tab2 = st.tabs(["📸 Revisar Imagen", "✍️ Escribir Mensaje"])
 
 with tab1:
-    # Usamos session_state para que la app no pierda el estado de la imagen
-    if "imagen_analizada" not in st.session_state:
-        st.session_state.imagen_analizada = None
-
     st.markdown("**Suba la captura de pantalla de su celular aquí:**")
-    archivo = st.file_uploader("Subir", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
+    
+    # Al ponerle una key, Streamlit gestiona el cambio de archivo automáticamente
+    archivo = st.file_uploader("Subir imagen", type=["png", "jpg", "jpeg"], key="archivo_analisis", label_visibility="collapsed")
     
     if archivo is not None:
-        # Solo procesamos si el archivo es nuevo
-        with st.spinner("Procesando..."):
-            texto_ext = procesar_imagen_ocr(archivo)
-            if texto_ext and texto_ext.strip():
-                ejecutar_analisis(texto_ext)
-            else:
-                st.error("Error al leer la imagen. Intente con una más clara.")
-    
-    if st.button("Limpiar Imagen"):
-        st.rerun()
+        # Esto se ejecuta solo cuando hay un archivo cargado
+        # Si el usuario sube otro, Streamlit detecta el cambio en 'archivo_analisis' y refresca solo
+        texto_ext = procesar_imagen_ocr(archivo)
+        
+        if texto_ext and texto_ext.strip():
+            ejecutar_analisis(texto_ext)
+        else:
+            st.error("Error al leer la imagen. Intente con una más clara.")
 
 with tab2:
     st.markdown("**Mantenga apretado y pegue el mensaje sospechoso:**")
