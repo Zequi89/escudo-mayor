@@ -269,26 +269,28 @@ def ejecutar_analisis(texto):
 tab1, tab2 = st.tabs(["📸 Revisar Imagen", "✍️ Escribir Mensaje"])
 
 with tab1:
-    # Contenedor para que el contenido sea dinámico
-    placeholder = st.empty()
-    
-    with placeholder.container():
-        st.markdown("**Suba la captura de pantalla de su celular aquí:**")
-        archivo = st.file_uploader("", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
+    # Usamos session_state para que la app no pierda el estado de la imagen
+    if "imagen_analizada" not in st.session_state:
+        st.session_state.imagen_analizada = None
+
+    st.markdown("**Suba la captura de pantalla de su celular aquí:**")
+    archivo = st.file_uploader("Subir", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
     
     if archivo is not None:
-        # Limpiamos el uploader para que no se duplique visualmente
-        placeholder.empty() 
-        texto_ext = procesar_imagen_ocr(archivo)
-        if texto_ext and texto_ext.strip():
-            ejecutar_analisis(texto_ext)
-            if st.button("🔄 Analizar otra imagen"):
-                st.rerun()
-        else:
-            st.error("Error al leer la imagen.")
+        # Solo procesamos si el archivo es nuevo
+        with st.spinner("Procesando..."):
+            texto_ext = procesar_imagen_ocr(archivo)
+            if texto_ext and texto_ext.strip():
+                ejecutar_analisis(texto_ext)
+            else:
+                st.error("Error al leer la imagen. Intente con una más clara.")
+    
+    if st.button("Limpiar Imagen"):
+        st.rerun()
+
 with tab2:
     st.markdown("**Mantenga apretado y pegue el mensaje sospechoso:**")
-    texto_ingresado = st.text_area("", height=150, label_visibility="collapsed")
+    texto_ingresado = st.text_area("Texto", height=150, label_visibility="collapsed")
     
     if st.button("🔍 Revisar Texto"):
         if texto_ingresado.strip(): 
