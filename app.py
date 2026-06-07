@@ -23,7 +23,11 @@ except ImportError:
     ]
 
 # Configuración de la página basada en el prototipo base
-st.set_page_config(page_title="Escudo Mayor", page_icon="🛡️", layout="centered")
+st.markdown("""
+<div style="border-top: 2px solid #008a45; border-bottom: 2px solid #008a45; padding: 12px 0; text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #008a45; margin: 0; font-size: 2.7rem; font-weight: 700; letter-spacing: 1px;">🛡️ ESCUDO MAYOR</h1>
+</div>
+""", unsafe_allow_html=True)
 
 # Inicialización de Estados de Navegación Remota
 if "active_tab" not in st.session_state:
@@ -440,7 +444,6 @@ if st.session_state["active_tab"] == "imagen":
     archivo = st.file_uploader("", type=["png", "jpg", "jpeg"], key="uploader_automatizado")
     
     if archivo is not None:
-        # Generar un identificador único del archivo cargado para evitar bucles infinitos de procesamiento
         file_id = f"{archivo.name}_{archivo.size}"
         if st.session_state.get("last_processed_file_id") != file_id:
             with st.spinner("Ejecutando descifrado óptico (OCR) y análisis automático instantáneo..."):
@@ -450,14 +453,29 @@ if st.session_state["active_tab"] == "imagen":
         
         # Despliegue automático de resultados si existe texto válido
         if st.session_state.get("stored_text_ocr"):
+            # Cuadro que muestra el texto extraído y normalizado en español
+            with st.container(border=True):
+                st.markdown("📋 **Texto Detectado en la Captura (Español / Procesado):**")
+                st.write(st.session_state["stored_text_ocr"])
+            
             ejecutar_analisis(st.session_state["stored_text_ocr"])
         elif st.session_state.get("stored_text_ocr") == "":
             st.error("No se pudo detectar texto legible dentro de la captura cargada.")
 else:
-    st.markdown("**Introduzca cualquier fragmento de mensaje, correo electrónico o dirección web sospechosa:**")
-    texto_ingresado = st.text_area("", height=150, placeholder="Ejemplo de dominio plano: bna.com.ar o ingrese el cuerpo del mensaje de texto...", key="input_consola_manual")
+    # Se unificó el Markdown dentro del label del text_area para eliminar el espacio en blanco molesto
+    texto_ingresado = st.text_area(
+        label="**Introduzca cualquier fragmento de mensaje, correo electrónico o dirección web sospechosa:**", 
+        height=150, 
+        placeholder="Ejemplo de dominio plano: bna.com.ar o ingrese el cuerpo del mensaje de texto...", 
+        key="input_consola_manual"
+    )
     if st.button("🔍 Iniciar Análisis de Texto", use_container_width=True):
         if texto_ingresado.strip(): 
+            # Cuadro espejo/traducción solicitado para mostrar abajo de la búsqueda
+            with st.container(border=True):
+                st.markdown("📋 **Mensaje Bajo Análisis:**")
+                st.write(texto_ingresado)
+                
             ejecutar_analisis(texto_ingresado)
         else:
             st.warning("Ingrese un texto o enlace.")
