@@ -527,7 +527,7 @@ st.write("")
 
 # Bloques de Entrada Aislados sin Impresión Espejo Auxiliar
 if st.session_state["active_tab"] == "imagen":
-    st.markdown("**Suba la captura de pantalla o foto del mensaje de su celular:**")
+    st.markdown("**Suba la captura de pantalla o foto del mensaje sospechoso:**")
     archivo = st.file_uploader("", type=["png", "jpg", "jpeg"], key="uploader_automatizado")
     
     if archivo is not None:
