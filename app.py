@@ -534,12 +534,12 @@ def ejecutar_analisis(texto_crudo):
 col_tab1, col_tab2 = st.columns(2)
 
 with col_tab1:
-    if st.button("📸 Analizar Imagen / Captura", use_container_width=True, key="tab_imagen_btn"):
+    if st.button("Analizar Imagen", use_container_width=True, key="tab_imagen_btn"):
         st.session_state["active_tab"] = "imagen"
         st.rerun()
 
 with col_tab2:
-    if st.button("✍️ Analizar Texto Manual", use_container_width=True, key="tab_texto_btn"):
+    if st.button("Analizar Texto", use_container_width=True, key="tab_texto_btn"):
         st.session_state["active_tab"] = "texto"
         st.rerun()
 
