@@ -499,7 +499,7 @@ def ejecutar_analisis(texto_crudo):
         st.text_area("Mensaje Analizado:", value=texto_original, height=120, key=f"disp_orig_{random.randint(1,9999)}")
 
     # Despliegue de Consola Forense Avanzada (Diseño Ultra-Compacto y Agrupado por Jerarquía)
-    with st.expander("🛠️ Ver Reporte Forense Completo de Infraestructura (Consola Técnica)", expanded=False):
+    with st.expander("Ver Análisis Profundo", expanded=False):
         html_lineas = []
         es_primer_dominio = True
         
