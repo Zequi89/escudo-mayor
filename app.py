@@ -445,7 +445,7 @@ else:
         if texto_ingresado.strip(): 
             ejecutar_analisis(texto_ingresado)
         else:
-            st.warning("Ingrese un texto o enlace legítimo para activar los motores de análisis.")
+            st.warning("Ingrese un texto o enlace.")
 
 # ==============================================================================
 # 8. MÓDULO INTERACTIVO DE TRIVIA DIARIA (CONTENEDOR SEGURO)
@@ -489,7 +489,7 @@ with st.container(border=True):
 st.write("---")
 with st.container(border=True):
     st.markdown("""
-    💡 <b>RECORDATORIO VITAL DE SEGURIDAD:</b> Ningún organismo gubernamental (como ANSES o PAMI), entidad bancaria privada ni prestador de servicios legítimo le solicitará claves secretas, tokens de seguridad o transferencias de dinero mediante canales informales. Ante cualquier duda, interrumpa el contacto.
+    💡 <b>RECORDATORIO:</b> Ningún organismo, banco, empresa de servicios, obra social o prepaga te pedirá claves o tokens por mensaje. Ante cualquier duda, contactate través de los canales oficiales.
     """, unsafe_allow_html=True)
 
-st.markdown('<p style="font-size: 0.75rem; color: #777777; text-align: center; margin-top: 15px;">🛡️ Proyecto Escudo Mayor - Aplicación de carácter académico e informativo para la protección digital. No orientada a fines comerciales.</p>', unsafe_allow_html=True)
+st.markdown('<p style="font-size: 0.75rem; color: #777777; text-align: center; margin-top: 15px;">🛡️ Proyecto Escudo Mayor - Aplicación de carácter académico para la protección digital. No orientada a fines comerciales.</p>', unsafe_allow_html=True)
