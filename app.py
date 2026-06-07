@@ -561,7 +561,7 @@ if "pregunta_actual" not in st.session_state:
     st.session_state.opcion_elegida = None
 
 with st.container(border=True):
-    st.markdown("<h4 style='color: #008a45; margin-top:0;'>🧠 Desafío Diario de Seguridad</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 style='color: #008a45; margin-top:0;'>🧠 Trivia de Seguridad</h4>", unsafe_allow_html=True)
     q = st.session_state.pregunta_actual
     st.write(f"**{q['pregunta']}**")
     
