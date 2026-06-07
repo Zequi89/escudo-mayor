@@ -432,32 +432,7 @@ def ejecutar_analisis(texto_crudo):
         else:
             color_veredicto = "verde"
 
-    # Inyección automática de alertas sonoras (Beeps limpios por URI de SoundJay)
-    if color_veredicto in ["rojo", "amarillo"]:
-        sound_url = "https://www.soundjay.com/buttons/sounds/button-10.mp3" if color_veredicto == "rojo" else "https://www.soundjay.com/buttons/sounds/button-4.mp3"
-        
-        # En lugar de un tag oculto, mostramos un botón disparador si el navegador lo bloquea
-        st.markdown(f"""
-        <div style="background-color: #f8fafc; padding: 10px; border-radius: 8px; border: 1px dashed #cbd5e1; text-align: center; margin-bottom: 15px;">
-            <p style="margin: 0; font-size: 0.9rem; color: #475569;">🔊 <b>Alerta sonora detectada:</b></p>
-            <audio id="alerta_audio" src="{sound_url}"></audio>
-            <button onclick="document.getElementById('alerta_audio').play()" 
-                    style="background-color: #334155; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 5px;">
-                Reproducir Alerta Sonora
-            </button>
-            <script>
-                // Intento de reproducción automática (a veces funciona si el usuario ya hizo clic antes)
-                window.onload = function() {{
-                    var audio = document.getElementById('alerta_audio');
-                    audio.play().catch(function(error) {{
-                        console.log("Reproducción automática bloqueada por el navegador");
-                    }});
-                }};
-            </script>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Inyección de HTML dinámico según la categoría del Semáforo Reestructurado
+       # Inyección de HTML dinámico según la categoría del Semáforo Reestructurado
     razones_html = "".join([f"<li>{m}</li>" for m in set(motivo_riesgo)]) if motivo_riesgo else "<li>No hay alertas técnicas automáticas activas en los diccionarios conceptuales.</li>"
 
     if color_veredicto == "rojo":
