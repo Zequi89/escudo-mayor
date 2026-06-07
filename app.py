@@ -74,13 +74,13 @@ GOOGLE_CX = st.secrets.get("GOOGLE_CX", None)
 # ==============================================================================
 if st.session_state["active_tab"] == "imagen":
     css_tabs = """
-    button[key="tab_imagen_btn"] { background-color: #008a45 !important; color: white !important; font-weight: bold !important; border: none !important; }
-    button[key="tab_texto_btn"] { background-color: #cbd5e1 !important; color: #1e293b !important; font-weight: normal !important; border: none !important; }
+    div[data-testid="stColumn"] button[key="tab_imagen_btn"] { background-color: #008a45 !important; color: white !important; font-weight: bold !important; border: none !important; }
+    div[data-testid="stColumn"] button[key="tab_texto_btn"] { background-color: #cbd5e1 !important; color: #1e293b !important; font-weight: normal !important; border: none !important; }
     """
 else:
     css_tabs = """
-    button[key="tab_imagen_btn"] { background-color: #cbd5e1 !important; color: #1e293b !important; font-weight: normal !important; border: none !important; }
-    button[key="tab_texto_btn"] { background-color: #008a45 !important; color: white !important; font-weight: bold !important; border: none !important; }
+    div[data-testid="stColumn"] button[key="tab_imagen_btn"] { background-color: #cbd5e1 !important; color: #1e293b !important; font-weight: normal !important; border: none !important; }
+    div[data-testid="stColumn"] button[key="tab_texto_btn"] { background-color: #008a45 !important; color: white !important; font-weight: bold !important; border: none !important; }
     """
 
 st.markdown(f"""
@@ -96,7 +96,7 @@ st.markdown(f"""
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         justify-content: center !important;
-        gap: 4px !important; /* Espacio mínimo para que queden pegados */
+        gap: 6px !important; /* Espacio mínimo para que queden pegados */
         width: 100% !important;
     }}
     
@@ -108,12 +108,13 @@ st.markdown(f"""
     }}
     
     /* Estilo unificado para hacer los botones más grandes, altos y legibles en celulares */
-    button[key="tab_imagen_btn"], button[key="tab_texto_btn"] {{
+    div[data-testid="stColumn"] button[key="tab_imagen_btn"], 
+    div[data-testid="stColumn"] button[key="tab_texto_btn"] {{
         width: 100% !important;
-        padding: 12px 16px !important; /* Más altura vertical para que se sientan grandes al tacto */
+        padding: 14px 16px !important; /* Más altura vertical para que se sientan grandes al tacto */
         height: auto !important;
-        font-size: 1.1rem !important;
-        border-radius: 6px !important;
+        font-size: 1.15rem !important;
+        border-radius: 8px !important;
         display: block !important;
     }}
     
@@ -178,7 +179,7 @@ st.markdown(f"""
     """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 4. MÓDULOS DE INFRAESTRUCTURA FORENSE AVANZADA Y APIS
+# 4. MÓDULOS DE INFRAESTRUCTURA FORENSE AVANCED Y APIS
 # ==============================================================================
 def limpiar_errores_ocr(t):
     t = re.sub(r'(\b[a-zA-Z0-9-]+)\s*\.\s*([a-zA-Z0-9.-]+)', r'\1.\2', t) 
